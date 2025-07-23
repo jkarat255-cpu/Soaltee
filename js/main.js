@@ -161,9 +161,11 @@ class JobPrepApp {
         confidenceScores: [],
         jobTitle: jobTitle,
         isMockInterview: false,
+        behavioralQuestions: [],
+        codingQuestions: [],
       }
 
-      // Generate the first 10 questions up front
+      // Generate the first 10 questions up front (5 behavioral, 5 coding for technical)
       const questionsText = await this.geminiAPI.generateInterviewQuestions(jobTitle, isTechnical, 10)
       const questions = questionsText
         .split("\n")
@@ -171,6 +173,10 @@ class JobPrepApp {
         .map((q) => q.replace(/^\d+\.\s*/, "").trim())
         .slice(0, 10)
       this.interviewState.questions = questions
+      if (isTechnical) {
+        this.interviewState.behavioralQuestions = questions.slice(0, 5)
+        this.interviewState.codingQuestions = questions.slice(5, 10)
+      }
 
       // Initialize camera and start interview
       await this.setupCamera()
@@ -322,35 +328,39 @@ class JobPrepApp {
       // Speak the question
       this.speechManager.speak(currentQuestion)
 
-      // Show coding section for technical questions if applicable
-      this.handleTechnicalQuestion(currentQuestion)
+      // Show coding section for technical questions if applicable (only for last 5 questions)
+      if (
+        this.interviewState.isTechnical &&
+        this.interviewState.currentQuestionIndex >= 5
+      ) {
+        this.handleTechnicalQuestion(currentQuestion)
+      } else {
+        // Hide coding section if not a coding question
+        const codingSection = document.getElementById("codingSection")
+        if (codingSection) codingSection.classList.add("hidden")
+      }
     }
   }
 
   async handleTechnicalQuestion(question) {
     const codingSection = document.getElementById("codingSection")
 
-    if (this.interviewState.isTechnical && this.isCodingQuestion(question)) {
-      if (codingSection) {
-        codingSection.classList.remove("hidden")
+    if (codingSection) {
+      codingSection.classList.remove("hidden")
 
-        // Initialize code editor if not already done
-        if (!this.codeEditor.isInitialized) {
-          await this.codeEditor.initialize("codeEditor")
-        }
-
-        // Generate a coding problem
-        try {
-          const codingProblem = await this.geminiAPI.generateCodingQuestion()
-          this.codeEditor.setValue(
-            `/*\n${codingProblem}\n*/\n\nfunction solution() {\n    // Your implementation here\n    \n}`,
-          )
-        } catch (error) {
-          console.error("Error generating coding question:", error)
-        }
+      // Initialize code editor if not already done
+      if (!this.codeEditor.isInitialized) {
+        await this.codeEditor.initialize("codeEditor")
       }
-    } else if (codingSection) {
-      codingSection.classList.add("hidden")
+
+      // Optionally, set language and test cases here in the future
+      // this.codeEditor.setLanguage('javascript');
+      // this.codeEditor.setTestCases([...]);
+
+      // Generate a coding problem (for now, just show the question)
+      this.codeEditor.setValue(
+        `/*\n${question}\n*/\n\nfunction solution() {\n    // Your implementation here\n    \n}`,
+      )
     }
   }
 

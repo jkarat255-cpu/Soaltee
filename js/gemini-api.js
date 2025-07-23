@@ -51,17 +51,27 @@ export class GeminiAPI {
   }
 
   async generateInterviewQuestions(jobTitle, isTechnical = false, count = 1) {
-    const technicalNote = isTechnical
-      ? "Include both behavioral and technical questions. For technical questions, focus on problem-solving and coding concepts."
-      : "Focus on behavioral and situational questions."
+    if (isTechnical && count === 10) {
+      const prompt = `Generate exactly 10 professional interview questions for a ${jobTitle} position.
 
-    const prompt = `Generate ${count} professional interview question${count > 1 ? "s" : ""} for a ${jobTitle} position. 
+1-5: Behavioral (non-coding) questions. These should focus on soft skills, teamwork, problem-solving, communication, and situational judgment. Do NOT include any coding or programming in these.
+6-10: Coding/programming questions. These should require the candidate to write code, solve algorithms, or implement functions. Each should be suitable for a technical interview.
+
+Format: Return exactly 10 questions, numbered 1-10, one per line. The first 5 must be behavioral, the last 5 must be coding/programming questions. Make the questions realistic and commonly asked in interviews.`;
+      return await this.generateContent(prompt);
+    } else {
+      const technicalNote = isTechnical
+        ? "Include both behavioral and technical questions. For technical questions, focus on problem-solving and coding concepts."
+        : "Focus on behavioral and situational questions."
+
+      const prompt = `Generate ${count} professional interview question${count > 1 ? "s" : ""} for a ${jobTitle} position. 
         ${technicalNote}
         
         Format: Return only the question${count > 1 ? "s" : ""}, one per line if multiple.
         Make the questions realistic and commonly asked in interviews.`
 
-    return await this.generateContent(prompt)
+      return await this.generateContent(prompt)
+    }
   }
 
   async generateMockInterviewQuestions(resumeText, jobDescription, isTechnical = false) {
