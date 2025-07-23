@@ -143,6 +143,9 @@ class JobPrepApp {
     const jobTitle = document.getElementById("practiceJobTitle")?.value
     const isTechnical = document.querySelector('input[name="isTechnical"]:checked')?.value === "yes"
 
+    // Store isTechnical in localStorage for DSA round logic
+    localStorage.setItem("isTechnicalRole", isTechnical ? "true" : "false")
+
     if (!jobTitle.trim()) {
       alert("Please enter a job title or topic.")
       return
@@ -428,8 +431,13 @@ class JobPrepApp {
       this.displayCurrentQuestion()
       this.confidenceAnalyzer.reset() // Reset confidence tracking for new question
     } else {
-      // Redirect to DSA round page
-      window.location.href = "dsa.html"
+      // Check if technical role, then redirect to DSA, else finish interview
+      const isTechnicalRole = localStorage.getItem("isTechnicalRole") === "true"
+      if (isTechnicalRole) {
+        window.location.href = "dsa.html"
+      } else {
+        await this.completeInterview()
+      }
     }
   }
 
