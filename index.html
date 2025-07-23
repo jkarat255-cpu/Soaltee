@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobPrep Pro - Interview Practice & Job Search Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-blue-600 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">JobPrep Pro</h1>
+            <div class="space-x-4">
+                <button id="jobSeekerBtn" class="bg-blue-500 hover:bg-blue-700 px-4 py-2 rounded transition-colors">
+                    Job Seeker
+                </button>
+                <button id="employerBtn" class="bg-green-500 hover:bg-green-700 px-4 py-2 rounded transition-colors">
+                    Employer
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto p-6">
+        <!-- Role Selection -->
+        <div id="roleSelection" class="text-center py-20">
+            <h2 class="text-4xl font-bold mb-8 text-gray-800">Choose Your Role</h2>
+            <div class="flex justify-center space-x-8">
+                <div class="bg-white p-8 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow" onclick="selectRole('jobseeker')">
+                    <i class="fas fa-user-tie text-6xl text-blue-500 mb-4"></i>
+                    <h3 class="text-2xl font-semibold mb-2">Job Seeker</h3>
+                    <p class="text-gray-600">Practice interviews, build resume, find jobs</p>
+                </div>
+                <div class="bg-white p-8 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow" onclick="selectRole('employer')">
+                    <i class="fas fa-building text-6xl text-green-500 mb-4"></i>
+                    <h3 class="text-2xl font-semibold mb-2">Employer</h3>
+                    <p class="text-gray-600">Post jobs, hire candidates, conduct interviews</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Seeker Dashboard -->
+        <div id="jobSeekerDashboard" class="hidden">
+            <h2 class="text-3xl font-bold mb-8 text-center">Job Seeker Dashboard</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow" onclick="showSection('interviewPractice')">
+                    <i class="fas fa-microphone text-4xl text-blue-500 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Interview Practice</h3>
+                    <p class="text-gray-600">Practice with AI-generated questions</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow" onclick="showSection('resumeBuilder')">
+                    <i class="fas fa-file-alt text-4xl text-green-500 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Resume Builder</h3>
+                    <p class="text-gray-600">Create and optimize your resume</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow" onclick="showSection('jobSearch')">
+                    <i class="fas fa-search text-4xl text-purple-500 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Job Search</h3>
+                    <p class="text-gray-600">Find and apply for jobs</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employer Dashboard -->
+        <div id="employerDashboard" class="hidden">
+            <h2 class="text-3xl font-bold mb-8 text-center">Employer Dashboard</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow" onclick="showSection('postJob')">
+                    <i class="fas fa-plus-circle text-4xl text-blue-500 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Post Job</h3>
+                    <p class="text-gray-600">Create new job vacancies</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow" onclick="showSection('manageJobs')">
+                    <i class="fas fa-briefcase text-4xl text-green-500 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Manage Jobs</h3>
+                    <p class="text-gray-600">View and manage posted jobs</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow" onclick="showSection('candidates')">
+                    <i class="fas fa-users text-4xl text-purple-500 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Candidates</h3>
+                    <p class="text-gray-600">Review and chat with applicants</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interview Practice Section -->
+        <div id="interviewPractice" class="hidden">
+            <div class="bg-white p-8 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-bold mb-6">Interview Practice</h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="border-2 border-blue-200 p-6 rounded-lg cursor-pointer hover:border-blue-400 transition-colors" onclick="startPracticeInterview()">
+                        <i class="fas fa-play-circle text-3xl text-blue-500 mb-3"></i>
+                        <h3 class="text-lg font-semibold mb-2">Practice Interview</h3>
+                        <p class="text-gray-600">One-by-one questions with real-time feedback</p>
+                    </div>
+                    <div class="border-2 border-green-200 p-6 rounded-lg cursor-pointer hover:border-green-400 transition-colors" onclick="startMockInterview()">
+                        <i class="fas fa-video text-3xl text-green-500 mb-3"></i>
+                        <h3 class="text-lg font-semibold mb-2">Mock Interview</h3>
+                        <p class="text-gray-600">Complete interview simulation with resume analysis</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Practice Interview Setup -->
+        <div id="practiceSetup" class="hidden">
+            <div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto">
+                <h2 class="text-2xl font-bold mb-6">Practice Interview Setup</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Job Title/Topic</label>
+                        <input type="text" id="practiceJobTitle" class="w-full p-3 border rounded-lg" placeholder="e.g., Software Engineer, Marketing Manager">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Is this a technical/coding role?</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="isTechnical" value="yes" class="mr-2">
+                                Yes
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="isTechnical" value="no" class="mr-2" checked>
+                                No
+                            </label>
+                        </div>
+                    </div>
+                    <button onclick="initializePracticeInterview()" class="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-colors">
+                        Start Practice Interview
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mock Interview Setup -->
+        <div id="mockSetup" class="hidden">
+            <div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto">
+                <h2 class="text-2xl font-bold mb-6">Mock Interview Setup</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Upload Resume (PDF)</label>
+                        <input type="file" id="resumeFile" accept=".pdf" class="w-full p-3 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Job Description</label>
+                        <textarea id="jobDescription" rows="4" class="w-full p-3 border rounded-lg" placeholder="Paste the job description here..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Is this a technical/coding role?</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="mockIsTechnical" value="yes" class="mr-2">
+                                Yes
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="mockIsTechnical" value="no" class="mr-2" checked>
+                                No
+                            </label>
+                        </div>
+                    </div>
+                    <button onclick="initializeMockInterview()" class="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors">
+                        Start Mock Interview
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interview Interface -->
+        <div id="interviewInterface" class="hidden">
+            <div class="bg-white p-8 rounded-lg shadow-lg">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Video Section -->
+                    <div class="space-y-4">
+                        <div class="relative">
+                            <video id="userVideo" autoplay muted class="w-full h-64 bg-gray-200 rounded-lg"></video>
+                            <div id="confidenceIndicator" class="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded">
+                                Confidence: <span id="confidenceScore">--</span>%
+                            </div>
+                        </div>
+                        <div class="flex justify-center space-x-4">
+                            <button id="recordBtn" onclick="toggleRecording()" class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors">
+                                <i class="fas fa-microphone mr-2"></i>Start Recording
+                            </button>
+                            <button id="nextBtn" onclick="nextQuestion()" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors" disabled>
+                                Next Question
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Question Section -->
+                    <div class="space-y-4">
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <h3 class="font-semibold mb-2">Question <span id="questionNumber">1</span>:</h3>
+                            <p id="currentQuestion" class="text-lg">Loading question...</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4 class="font-semibold mb-2">Your Answer:</h4>
+                            <p id="transcription" class="text-gray-700 min-h-[100px]">Your speech will appear here...</p>
+                        </div>
+                        <div id="codingSection" class="hidden">
+                            <h4 class="font-semibold mb-2">Code Editor:</h4>
+                            <div id="codeEditor" class="border rounded-lg h-64"></div>
+                            <div class="mt-2 flex space-x-2">
+                                <button onclick="runCode()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                                    Run Code
+                                </button>
+                                <button onclick="submitCode()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                                    Submit
+                                </button>
+                                <button onclick="skipCoding()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                                    Skip
+                                </button>
+                            </div>
+                            <div id="codeOutput" class="mt-2 p-2 bg-gray-100 rounded min-h-[50px] font-mono text-sm"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interview Results -->
+        <div id="interviewResults" class="hidden">
+            <div class="bg-white p-8 rounded-lg shadow-lg max-w-4xl mx-auto">
+                <h2 class="text-2xl font-bold mb-6 text-center">Interview Results</h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-blue-800 mb-2">Overall Confidence Score</h3>
+                            <div class="text-3xl font-bold text-blue-600" id="overallConfidence">--</div>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-green-800 mb-2">Answer Relevancy</h3>
+                            <div class="text-3xl font-bold text-green-600" id="answerRelevancy">--</div>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-purple-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-purple-800 mb-2">Communication Skills</h3>
+                            <div class="text-3xl font-bold text-purple-600" id="communicationScore">--</div>
+                        </div>
+                        <div class="bg-yellow-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-yellow-800 mb-2">Technical Skills</h3>
+                            <div class="text-3xl font-bold text-yellow-600" id="technicalScore">--</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <h3 class="font-semibold mb-4">Detailed Feedback</h3>
+                    <div id="detailedFeedback" class="bg-gray-50 p-4 rounded-lg min-h-[200px]">
+                        Loading feedback...
+                    </div>
+                </div>
+                <div class="mt-6 text-center">
+                    <button onclick="goHome()" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors">
+                        Back to Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resume Builder Section -->
+        <div id="resumeBuilder" class="hidden">
+            <div class="bg-white p-8 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-bold mb-6">Resume Builder</h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Upload Existing Resume (Optional)</label>
+                            <input type="file" id="existingResume" accept=".pdf" class="w-full p-3 border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Full Name</label>
+                            <input type="text" id="fullName" class="w-full p-3 border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Email</label>
+                            <input type="email" id="email" class="w-full p-3 border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Phone</label>
+                            <input type="tel" id="phone" class="w-full p-3 border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Professional Summary</label>
+                            <textarea id="summary" rows="3" class="w-full p-3 border rounded-lg"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Experience</label>
+                            <textarea id="experience" rows="4" class="w-full p-3 border rounded-lg" placeholder="Job Title - Company (Year-Year)&#10;• Achievement 1&#10;• Achievement 2"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Education</label>
+                            <textarea id="education" rows="3" class="w-full p-3 border rounded-lg"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Skills</label>
+                            <input type="text" id="skills" class="w-full p-3 border rounded-lg" placeholder="Skill 1, Skill 2, Skill 3">
+                        </div>
+                        <div class="flex space-x-4">
+                            <button onclick="generateResume()" class="flex-1 bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-colors">
+                                Generate Resume
+                            </button>
+                            <button onclick="getResumeSuggestions()" class="flex-1 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors">
+                                Get AI Suggestions
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold mb-4">Resume Preview</h3>
+                        <div id="resumePreview" class="border-2 border-gray-200 rounded-lg p-4 min-h-[600px] bg-white">
+                            <p class="text-gray-500 text-center mt-20">Resume preview will appear here</p>
+                        </div>
+                        <button id="downloadResumeBtn" onclick="downloadResume()" class="w-full mt-4 bg-purple-500 text-white py-3 rounded-lg hover:bg-purple-600 transition-colors" disabled>
+                            Download PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Search Section -->
+        <div id="jobSearch" class="hidden">
+            <div class="bg-white p-8 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-bold mb-6">Job Search</h2>
+                <div class="mb-6">
+                    <div class="flex space-x-4">
+                        <input type="text" id="jobSearchQuery" class="flex-1 p-3 border rounded-lg" placeholder="Search for jobs...">
+                        <button onclick="searchJobs()" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors">
+                            Search
+                        </button>
+                    </div>
+                </div>
+                <div id="jobResults" class="space-y-4">
+                    <!-- Job listings will appear here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Post Job Section -->
+        <div id="postJob" class="hidden">
+            <div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto">
+                <h2 class="text-2xl font-bold mb-6">Post New Job</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Job Title</label>
+                        <input type="text" id="jobTitle" class="w-full p-3 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Company Name</label>
+                        <input type="text" id="companyName" class="w-full p-3 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Location</label>
+                        <input type="text" id="jobLocation" class="w-full p-3 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Job Type</label>
+                        <select id="jobType" class="w-full p-3 border rounded-lg">
+                            <option value="full-time">Full Time</option>
+                            <option value="part-time">Part Time</option>
+                            <option value="contract">Contract</option>
+                            <option value="internship">Internship</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Salary Range</label>
+                        <input type="text" id="salaryRange" class="w-full p-3 border rounded-lg" placeholder="e.g., $50,000 - $70,000">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Job Description</label>
+                        <textarea id="jobDescriptionPost" rows="6" class="w-full p-3 border rounded-lg"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Requirements</label>
+                        <textarea id="jobRequirements" rows="4" class="w-full p-3 border rounded-lg"></textarea>
+                    </div>
+                    <button onclick="postNewJob()" class="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-colors">
+                        Post Job
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Jobs Section -->
+        <div id="manageJobs" class="hidden">
+            <div class="bg-white p-8 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-bold mb-6">Manage Jobs</h2>
+                <div id="postedJobs" class="space-y-4">
+                    <!-- Posted jobs will appear here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Candidates Section -->
+        <div id="candidates" class="hidden">
+            <div class="bg-white p-8 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-bold mb-6">Candidates</h2>
+                <div id="candidatesList" class="space-y-4">
+                    <!-- Candidates will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-8 rounded-lg text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p class="text-lg">Processing...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection@0.0.3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.0.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
