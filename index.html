@@ -12,14 +12,25 @@
     <!-- Navigation -->
     <nav class="bg-blue-600 text-white p-4 shadow-lg">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold">JobPrep Pro</h1>
-            <div class="space-x-4">
+            <a href="index.html" class="text-2xl font-bold hover:underline">JobPrep Pro</a>
+            <div class="space-x-4 flex items-center">
                 <button id="jobSeekerBtn" class="bg-blue-500 hover:bg-blue-700 px-4 py-2 rounded transition-colors">
                     Job Seeker
                 </button>
                 <button id="employerBtn" class="bg-green-500 hover:bg-green-700 px-4 py-2 rounded transition-colors">
                     Employer
                 </button>
+                <button id="loginBtn" class="bg-white text-blue-600 hover:bg-gray-100 px-4 py-2 rounded border border-blue-500 transition-colors ml-4 font-semibold flex items-center" onclick="window.location.href='auth.html'">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Login
+                </button>
+                <div id="profileMenu" class="relative hidden ml-4">
+                    <button id="profileIcon" class="bg-white text-blue-600 hover:bg-gray-100 px-4 py-2 rounded-full border border-blue-500 transition-colors flex items-center focus:outline-none">
+                        <i class="fas fa-user-circle text-2xl"></i>
+                    </button>
+                    <div id="profileDropdown" class="absolute right-0 mt-2 w-32 bg-white border rounded shadow-lg py-2 hidden z-50">
+                        <button id="logoutBtn" class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">Log Out</button>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -421,5 +432,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
     <script type="module" src="js/main.js"></script>
+    <script type="module" src="js/nav-auth.js"></script>
 </body>
 </html>
