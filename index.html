@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles/main.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.3/ace.js" integrity="sha512-+Qn6Qw6Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
@@ -200,6 +201,8 @@
                             <h4 class="font-semibold mb-2">Your Answer:</h4>
                             <p id="transcription" class="text-gray-700 min-h-[100px]">Your speech will appear here...</p>
                         </div>
+                        <div id="practiceFeedback" class="bg-yellow-50 p-4 rounded-lg hidden"></div>
+                        <!-- Feedback area for practice mode -->
                         <div id="codingSection" class="hidden">
                             <h4 class="font-semibold mb-2">Code Editor:</h4>
                             <div id="codeEditor" class="border rounded-lg h-64"></div>
@@ -411,6 +414,40 @@
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
             <p class="text-lg">Processing...</p>
         </div>
+    </div>
+
+    <!-- DSA Round Modal -->
+    <div id="dsaModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+      <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full text-center">
+        <h2 class="text-2xl font-bold mb-4">DSA/Coding Round</h2>
+        <p class="mb-6">You have completed the normal interview questions.<br>Now you will enter the DSA/Coding round. You will be given a coding problem to solve with real test cases.<br><br>Click below to continue or skip if you wish.</p>
+        <div class="flex flex-col gap-2">
+          <button id="startDsaBtn" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">Start Coding Round</button>
+          <button id="skipDsaBtn" class="bg-gray-400 text-white px-6 py-3 rounded-lg hover:bg-gray-500 transition-colors">Skip DSA Round</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coding Interface -->
+    <div id="codingInterface" class="hidden container mx-auto p-6">
+      <div class="bg-white p-8 rounded-lg shadow-lg max-w-3xl mx-auto">
+        <h2 class="text-2xl font-bold mb-4">Coding Challenge</h2>
+        <div id="codingProblem" class="mb-4 text-left"></div>
+        <div class="mb-4">
+          <label for="languageSelect" class="block mb-2 font-semibold">Language:</label>
+          <select id="languageSelect" class="p-2 border rounded">
+            <option value="python">Python</option>
+            <option value="javascript">JavaScript</option>
+            <option value="java">Java</option>
+            <option value="cpp">C++</option>
+          </select>
+        </div>
+        <div id="judgeEditor" class="mb-4" style="height: 300px;"></div>
+        <button id="submitCodeBtn" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Submit Code</button>
+        <button id="skipCodeBtn" class="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500 ml-2">Skip This Problem</button>
+        <div id="testCaseResults" class="mt-6"></div>
+        <div id="dsaFeedback" class="mt-8"></div>
+      </div>
     </div>
 
     <!-- Scripts -->

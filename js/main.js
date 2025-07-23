@@ -328,40 +328,15 @@ class JobPrepApp {
       // Speak the question
       this.speechManager.speak(currentQuestion)
 
-      // Show coding section for technical questions if applicable (only for last 5 questions)
-      if (
-        this.interviewState.isTechnical &&
-        this.interviewState.currentQuestionIndex >= 5
-      ) {
-        this.handleTechnicalQuestion(currentQuestion)
-      } else {
-        // Hide coding section if not a coding question
-        const codingSection = document.getElementById("codingSection")
-        if (codingSection) codingSection.classList.add("hidden")
-      }
+      // Always hide coding section during first 10 questions
+      const codingSection = document.getElementById("codingSection")
+      if (codingSection) codingSection.classList.add("hidden")
     }
   }
 
+  // Remove or disable handleTechnicalQuestion for first 10 questions
   async handleTechnicalQuestion(question) {
-    const codingSection = document.getElementById("codingSection")
-
-    if (codingSection) {
-      codingSection.classList.remove("hidden")
-
-      // Initialize code editor if not already done
-      if (!this.codeEditor.isInitialized) {
-        await this.codeEditor.initialize("codeEditor")
-      }
-
-      // Optionally, set language and test cases here in the future
-      // this.codeEditor.setLanguage('javascript');
-      // this.codeEditor.setTestCases([...]);
-
-      // Generate a coding problem (for now, just show the question)
-      this.codeEditor.setValue(
-        `/*\n${question}\n*/\n\nfunction solution() {\n    // Your implementation here\n    \n}`,
-      )
-    }
+    // No-op during first 10 questions; codingSection is only used in DSA round now
   }
 
   isCodingQuestion(question) {
@@ -404,7 +379,7 @@ class JobPrepApp {
     }
   }
 
-  handleRecordingComplete(finalTranscript) {
+  async handleRecordingComplete(finalTranscript) {
     // Store the answer (even if empty)
     const currentQuestion = this.interviewState.questions[this.interviewState.currentQuestionIndex]
     const confidenceScore = this.confidenceAnalyzer.getAverageConfidence()
@@ -414,13 +389,38 @@ class JobPrepApp {
       confidenceScore: confidenceScore,
     })
     this.interviewState.confidenceScores.push(confidenceScore)
+
+    // Show immediate feedback in practice mode
+    if (!this.interviewState.isMockInterview) {
+      const feedbackArea = document.getElementById("practiceFeedback")
+      if (feedbackArea) {
+        feedbackArea.classList.remove("hidden")
+        feedbackArea.innerHTML = '<span style="color:#888">Evaluating your answer...</span>'
+      }
+      try {
+        const jobContext = this.interviewState.jobTitle
+        const feedback = await this.geminiAPI.evaluateAnswer(currentQuestion, finalTranscript, jobContext)
+        if (feedbackArea) {
+          feedbackArea.innerHTML = `<div class="prose max-w-none">${feedback.replace(/\n/g, "<br>")}</div>`
+        }
+      } catch (error) {
+        if (feedbackArea) {
+          feedbackArea.innerHTML = '<span style="color:#e53e3e">Error getting feedback.</span>'
+        }
+      }
+    }
   }
 
   async nextQuestion() {
     const currentIndex = this.interviewState.currentQuestionIndex
     // For practice interview, do not generate more than 10 questions
     if (!this.interviewState.isMockInterview) {
-      // No more questions to generate, just move to next or finish
+      // Hide feedback area for next question
+      const feedbackArea = document.getElementById("practiceFeedback")
+      if (feedbackArea) {
+        feedbackArea.classList.add("hidden")
+        feedbackArea.innerHTML = ""
+      }
     }
     // Move to next question or finish interview
     if (currentIndex < this.interviewState.questions.length - 1 && currentIndex < 9) {
@@ -428,8 +428,8 @@ class JobPrepApp {
       this.displayCurrentQuestion()
       this.confidenceAnalyzer.reset() // Reset confidence tracking for new question
     } else {
-      // Interview complete after 10 questions
-      await this.completeInterview()
+      // Redirect to DSA round page
+      window.location.href = "dsa.html"
     }
   }
 
@@ -770,3 +770,264 @@ window.submitCode = (...args) => app.submitCode(...args);
 window.skipCoding = (...args) => app.skipCoding(...args);
 window.goHome = (...args) => app.goHome(...args);
 window.showLoading = showLoading;
+
+// Add at the top:
+const DSA_PROBLEMS = [
+  {
+    title: "Two Sum",
+    description: `Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.\n\nYou can return the answer in any order.`,
+    examples: [
+      { input: "nums = [2,7,11,15], target = 9", output: "[0,1]" },
+      { input: "nums = [3,2,4], target = 6", output: "[1,2]" },
+      { input: "nums = [3,3], target = 6", output: "[0,1]" },
+    ],
+    testCases: [
+      { input: "[2,7,11,15]\n9", expected: "[0,1]" },
+      { input: "[3,2,4]\n6", expected: "[1,2]" },
+      { input: "[3,3]\n6", expected: "[0,1]" },
+    ],
+  },
+  {
+    title: "Reverse Linked List",
+    description: `Given the head of a singly linked list, reverse the list, and return the reversed list.\n\nInput is a list of numbers, output is the reversed list as an array.`,
+    examples: [
+      { input: "head = [1,2,3,4,5]", output: "[5,4,3,2,1]" },
+      { input: "head = [1,2]", output: "[2,1]" },
+      { input: "head = []", output: "[]" },
+    ],
+    testCases: [
+      { input: "[1,2,3,4,5]", expected: "[5,4,3,2,1]" },
+      { input: "[1,2]", expected: "[2,1]" },
+      { input: "[]", expected: "[]" },
+    ],
+  },
+  {
+    title: "Valid Parentheses",
+    description: `Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.\n\nAn input string is valid if:\n1. Open brackets must be closed by the same type of brackets.\n2. Open brackets must be closed in the correct order.`,
+    examples: [
+      { input: "s = '()'", output: "true" },
+      { input: "s = '()[]{}'", output: "true" },
+      { input: "s = '(]'", output: "false" },
+    ],
+    testCases: [
+      { input: "()", expected: "true" },
+      { input: "()[]{}", expected: "true" },
+      { input: "(]", expected: "false" },
+    ],
+  },
+  {
+    title: "Maximum Subarray",
+    description: `Given an integer array nums, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.`,
+    examples: [
+      { input: "nums = [-2,1,-3,4,-1,2,1,-5,4]", output: "6" },
+      { input: "nums = [1]", output: "1" },
+      { input: "nums = [5,4,-1,7,8]", output: "23" },
+    ],
+    testCases: [
+      { input: "[-2,1,-3,4,-1,2,1,-5,4]", expected: "6" },
+      { input: "[1]", expected: "1" },
+      { input: "[5,4,-1,7,8]", expected: "23" },
+    ],
+  },
+  {
+    title: "Climbing Stairs",
+    description: `You are climbing a staircase. It takes n steps to reach the top. Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?` ,
+    examples: [
+      { input: "n = 2", output: "2" },
+      { input: "n = 3", output: "3" },
+    ],
+    testCases: [
+      { input: "2", expected: "2" },
+      { input: "3", expected: "3" },
+      { input: "5", expected: "8" },
+    ],
+  },
+];
+
+// Show coding interface and load problem
+function showCodingInterface() {
+  document.getElementById("codingInterface").classList.remove("hidden")
+  dsaIndex = 0
+  dsaResults = []
+  showDsaProblem()
+}
+
+// Judge0 API integration
+async function submitToJudge0(sourceCode, language, testCases) {
+  // Map language to Judge0 id
+  const langMap = { python: 71, javascript: 63, java: 62, cpp: 54 }
+  const langId = langMap[language] || 71
+  const results = []
+  for (const tc of testCases) {
+    const input = tc.input.replace(/\n/g, '\n')
+    const expected = tc.expected
+    const resp = await fetch("https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
+        "x-rapidapi-key": "39049afc32msh2c7f47118d163ddp1cc143jsnfe6421e2fcfe"
+      },
+      body: JSON.stringify({
+        source_code: sourceCode,
+        language_id: langId,
+        stdin: input,
+      })
+    })
+    const data = await resp.json()
+    results.push({
+      input,
+      expected,
+      output: data.stdout ? data.stdout.trim() : (data.stderr || data.compile_output || ""),
+      pass: data.stdout && data.stdout.trim() === expected
+    })
+  }
+  return results
+}
+
+// Handle code submission
+window.addEventListener("DOMContentLoaded", () => {
+  const submitBtn = document.getElementById("submitCodeBtn")
+  if (submitBtn) {
+    submitBtn.onclick = async () => {
+      const code = document.getElementById("codeInput").value
+      const lang = document.getElementById("languageSelect").value
+      const testCases = DSA_PROBLEMS[0].testCases // Default to the first problem's test cases
+      document.getElementById("testCaseResults").innerHTML = '<span style="color:#888">Running test cases...</span>'
+      try {
+        const results = await submitToJudge0(code, lang, testCases)
+        let html = '<h4 class="font-semibold mb-2">Test Case Results:</h4><ul>'
+        for (const r of results) {
+          html += `<li><b>Input:</b> ${r.input} <b>Expected:</b> ${r.expected} <b>Output:</b> ${r.output} <span class='${r.pass ? "text-green-600" : "text-red-600"}'>${r.pass ? "PASS" : "FAIL"}</span></li>`
+        }
+        html += '</ul>'
+        document.getElementById("testCaseResults").innerHTML = html
+      } catch (e) {
+        document.getElementById("testCaseResults").innerHTML = '<span style="color:#e53e3e">Error running code.</span>'
+      }
+    }
+  }
+})
+
+// Add event listener for DSA modal button (ensure it always attaches)
+function setupDsaModalListener() {
+  const dsaBtn = document.getElementById("startDsaBtn")
+  if (dsaBtn) {
+    dsaBtn.onclick = () => {
+      document.getElementById("dsaModal").classList.add("hidden")
+      // Hide main interview interface if visible
+      const interviewInterface = document.getElementById("interviewInterface")
+      if (interviewInterface) interviewInterface.classList.add("hidden")
+      showCodingInterface()
+    }
+  }
+  const skipBtn = document.getElementById("skipDsaBtn")
+  if (skipBtn) {
+    skipBtn.onclick = () => {
+      document.getElementById("dsaModal").classList.add("hidden")
+      // Hide main interview interface if visible
+      const interviewInterface = document.getElementById("interviewInterface")
+      if (interviewInterface) interviewInterface.classList.add("hidden")
+      // Show feedback for skipping DSA
+      document.getElementById("dsaFeedback").innerHTML = '<div class="text-yellow-600 font-bold">You skipped the DSA round.</div>'
+      document.getElementById("codingInterface").classList.add("hidden")
+    }
+  }
+}
+
+// DSA round state
+let dsaProblems = DSA_PROBLEMS;
+let dsaIndex = 0;
+let dsaResults = [];
+
+function showDsaProblem() {
+  const p = dsaProblems[dsaIndex]
+  let html = `<h3 class='text-xl font-bold mb-2'>${p.title} <span class='text-sm text-gray-500'>(Problem ${dsaIndex+1}/5)</span></h3><p>${p.description.replace(/\n/g, '<br>')}</p><div class='mt-2'><b>Examples:</b><ul>`
+  for (const ex of p.examples) {
+    html += `<li><b>Input:</b> ${ex.input} <b>Output:</b> ${ex.output}</li>`
+  }
+  html += '</ul></div>'
+  document.getElementById("codingProblem").innerHTML = html
+  document.getElementById("judgeEditor").innerHTML = `<div id='aceEditor' style='height: 300px; width: 100%; border-radius: 0.5rem;'></div>`
+  setTimeout(() => {
+    if (window.aceEditor) {
+      window.aceEditor.destroy();
+      window.aceEditor = null;
+    }
+    if (window.ace) {
+      const langMap = { python: "python", javascript: "javascript", java: "java", cpp: "c_cpp" }
+      const lang = document.getElementById("languageSelect").value
+      window.aceEditor = ace.edit("aceEditor")
+      window.aceEditor.setTheme("ace/theme/monokai")
+      window.aceEditor.session.setMode(`ace/mode/${langMap[lang] || "python"}`)
+      window.aceEditor.setValue("# Write your code here\n", 1)
+      window.aceEditor.setOptions({ fontSize: "16px", fontFamily: "monospace", showPrintMargin: false })
+      // Update language on dropdown change
+      document.getElementById("languageSelect").onchange = function() {
+        const newLang = langMap[this.value] || "python"
+        window.aceEditor.session.setMode(`ace/mode/${newLang}`)
+      }
+    }
+  }, 200)
+  document.getElementById("testCaseResults").innerHTML = ""
+  document.getElementById("dsaFeedback").innerHTML = ""
+}
+
+// Update code submission to get code from Ace
+window.addEventListener("DOMContentLoaded", () => {
+  const submitBtn = document.getElementById("submitCodeBtn")
+  if (submitBtn) {
+    submitBtn.onclick = async () => {
+      const code = window.aceEditor ? window.aceEditor.getValue() : document.getElementById("codeInput").value
+      const lang = document.getElementById("languageSelect").value
+      const testCases = dsaProblems[dsaIndex].testCases
+      document.getElementById("testCaseResults").innerHTML = '<span style="color:#888">Running test cases...</span>'
+      try {
+        const results = await submitToJudge0(code, lang, testCases)
+        let html = '<h4 class="font-semibold mb-2">Test Case Results:</h4><ul>'
+        let passCount = 0
+        for (const r of results) {
+          if (r.pass) passCount++
+          html += `<li><b>Input:</b> ${r.input} <b>Expected:</b> ${r.expected} <b>Output:</b> ${r.output} <span class='${r.pass ? "text-green-600" : "text-red-600"}'>${r.pass ? "PASS" : "FAIL"}</span></li>`
+        }
+        html += '</ul>'
+        document.getElementById("testCaseResults").innerHTML = html
+        dsaResults.push({ problem: dsaProblems[dsaIndex].title, attempted: true, passed: passCount })
+        nextDsaProblem()
+      } catch (e) {
+        document.getElementById("testCaseResults").innerHTML = '<span style="color:#e53e3e">Error running code.</span>'
+      }
+    }
+  }
+  const skipCodeBtn = document.getElementById("skipCodeBtn")
+  if (skipCodeBtn) {
+    skipCodeBtn.onclick = () => {
+      dsaResults.push({ problem: dsaProblems[dsaIndex].title, attempted: false, passed: 0 })
+      nextDsaProblem()
+    }
+  }
+})
+
+function nextDsaProblem() {
+  dsaIndex++
+  if (dsaIndex < dsaProblems.length) {
+    showDsaProblem()
+  } else {
+    showDsaFeedback()
+  }
+}
+
+function showDsaFeedback() {
+  // For demo, just show summary. You can call Gemini for feedback if desired.
+  let html = '<h3 class="text-xl font-bold mb-4">DSA Round Feedback</h3><ul>'
+  dsaResults.forEach((r, i) => {
+    html += `<li>Problem ${i+1}: ${r.attempted ? `Attempted, Passed ${r.passed} test cases` : 'Skipped'}</li>`
+  })
+  html += '</ul>'
+  document.getElementById("dsaFeedback").innerHTML = html
+  document.getElementById("codingInterface").scrollIntoView({ behavior: 'smooth' })
+  // Hide the code editor after feedback
+  document.getElementById("codingInterface").classList.add("hidden")
+}
+
+window.addEventListener("DOMContentLoaded", setupDsaModalListener)

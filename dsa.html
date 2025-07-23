@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DSA Coding Round</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+  <div class="container mx-auto p-6 flex-1 flex flex-col items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-3xl w-full">
+      <h2 class="text-2xl font-bold mb-4 text-center">DSA Coding Challenge</h2>
+      <div id="dsaProblem" class="mb-4 text-left"></div>
+      <div class="mb-4">
+        <label for="languageSelect" class="block mb-2 font-semibold">Language:</label>
+        <select id="languageSelect" class="p-2 border rounded">
+          <option value="python">Python</option>
+          <option value="javascript">JavaScript</option>
+          <option value="java">Java</option>
+          <option value="cpp">C++</option>
+        </select>
+      </div>
+      <div id="monacoEditor" class="mb-4" style="height: 320px; width: 100%; border-radius: 0.5rem;"></div>
+      <div class="flex gap-2">
+        <button id="submitCodeBtn" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Submit Code</button>
+        <button id="skipCodeBtn" class="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500">Skip This Problem</button>
+      </div>
+      <div id="testCaseResults" class="mt-6"></div>
+      <div id="dsaFeedback" class="mt-8"></div>
+      <div class="mt-8 text-center">
+        <a href="index.html" class="text-blue-600 hover:underline">Back to Main Page</a>
+      </div>
+    </div>
+  </div>
+  <script>
+    // DSA Problems
+    const DSA_PROBLEMS = [
+      {
+        title: "Two Sum",
+        description: `Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.\n\nYou can return the answer in any order.`,
+        examples: [
+          { input: "nums = [2,7,11,15], target = 9", output: "[0,1]" },
+          { input: "nums = [3,2,4], target = 6", output: "[1,2]" },
+          { input: "nums = [3,3], target = 6", output: "[0,1]" },
+        ],
+        testCases: [
+          { input: "[2,7,11,15]\n9", expected: "[0,1]" },
+          { input: "[3,2,4]\n6", expected: "[1,2]" },
+          { input: "[3,3]\n6", expected: "[0,1]" },
+        ],
+      },
+      {
+        title: "Reverse Linked List",
+        description: `Given the head of a singly linked list, reverse the list, and return the reversed list.\n\nInput is a list of numbers, output is the reversed list as an array.`,
+        examples: [
+          { input: "head = [1,2,3,4,5]", output: "[5,4,3,2,1]" },
+          { input: "head = [1,2]", output: "[2,1]" },
+          { input: "head = []", output: "[]" },
+        ],
+        testCases: [
+          { input: "[1,2,3,4,5]", expected: "[5,4,3,2,1]" },
+          { input: "[1,2]", expected: "[2,1]" },
+          { input: "[]", expected: "[]" },
+        ],
+      },
+      {
+        title: "Valid Parentheses",
+        description: `Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.\n\nAn input string is valid if:\n1. Open brackets must be closed by the same type of brackets.\n2. Open brackets must be closed in the correct order.`,
+        examples: [
+          { input: "s = '()'", output: "true" },
+          { input: "s = '()[]{}'", output: "true" },
+          { input: "s = '(]'", output: "false" },
+        ],
+        testCases: [
+          { input: "()", expected: "true" },
+          { input: "()[]{}", expected: "true" },
+          { input: "(]", expected: "false" },
+        ],
+      },
+      {
+        title: "Maximum Subarray",
+        description: `Given an integer array nums, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.`,
+        examples: [
+          { input: "nums = [-2,1,-3,4,-1,2,1,-5,4]", output: "6" },
+          { input: "nums = [1]", output: "1" },
+          { input: "nums = [5,4,-1,7,8]", output: "23" },
+        ],
+        testCases: [
+          { input: "[-2,1,-3,4,-1,2,1,-5,4]", expected: "6" },
+          { input: "[1]", expected: "1" },
+          { input: "[5,4,-1,7,8]", expected: "23" },
+        ],
+      },
+      {
+        title: "Climbing Stairs",
+        description: `You are climbing a staircase. It takes n steps to reach the top. Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?` ,
+        examples: [
+          { input: "n = 2", output: "2" },
+          { input: "n = 3", output: "3" },
+        ],
+        testCases: [
+          { input: "2", expected: "2" },
+          { input: "3", expected: "3" },
+          { input: "5", expected: "8" },
+        ],
+      },
+    ];
+    let dsaIndex = 0;
+    let dsaResults = [];
+    let editor = null;
+
+    // Monaco loader
+    require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
+    function loadMonaco(lang, callback) {
+      require(['vs/editor/editor.main'], function () {
+        if (editor) {
+          editor.dispose();
+        }
+        editor = monaco.editor.create(document.getElementById('monacoEditor'), {
+          value: '# Write your code here\n',
+          language: lang,
+          theme: 'vs-dark',
+          fontSize: 16,
+          minimap: { enabled: false },
+          automaticLayout: true,
+        });
+        if (callback) callback();
+      });
+    }
+
+    function showDsaProblem() {
+      const p = DSA_PROBLEMS[dsaIndex];
+      let html = `<h3 class='text-xl font-bold mb-2'>${p.title} <span class='text-sm text-gray-500'>(Problem ${dsaIndex+1}/5)</span></h3><p>${p.description.replace(/\n/g, '<br>')}</p><div class='mt-2'><b>Examples:</b><ul>`;
+      for (const ex of p.examples) {
+        html += `<li><b>Input:</b> ${ex.input} <b>Output:</b> ${ex.output}</li>`;
+      }
+      html += '</ul></div>';
+      document.getElementById('dsaProblem').innerHTML = html;
+      document.getElementById('testCaseResults').innerHTML = '';
+      document.getElementById('dsaFeedback').innerHTML = '';
+      // Set language
+      const langMap = { python: 'python', javascript: 'javascript', java: 'java', cpp: 'cpp' };
+      const lang = langMap[document.getElementById('languageSelect').value] || 'python';
+      loadMonaco(lang);
+    }
+
+    document.getElementById('languageSelect').onchange = function() {
+      const langMap = { python: 'python', javascript: 'javascript', java: 'java', cpp: 'cpp' };
+      const lang = langMap[this.value] || 'python';
+      loadMonaco(lang);
+    };
+
+    document.getElementById('submitCodeBtn').onclick = async function() {
+      const code = editor ? editor.getValue() : '';
+      const lang = document.getElementById('languageSelect').value;
+      const testCases = DSA_PROBLEMS[dsaIndex].testCases;
+      document.getElementById('testCaseResults').innerHTML = '<span style="color:#888">Running test cases...</span>';
+      try {
+        const results = await submitToJudge0(code, lang, testCases);
+        let html = '<h4 class="font-semibold mb-2">Test Case Results:</h4><ul>';
+        let passCount = 0;
+        for (const r of results) {
+          if (r.pass) passCount++;
+          html += `<li><b>Input:</b> ${r.input} <b>Expected:</b> ${r.expected} <b>Output:</b> ${r.output} <span class='${r.pass ? "text-green-600" : "text-red-600"}'>${r.pass ? "PASS" : "FAIL"}</span></li>`;
+        }
+        html += '</ul>';
+        document.getElementById('testCaseResults').innerHTML = html;
+        dsaResults.push({ problem: DSA_PROBLEMS[dsaIndex].title, attempted: true, passed: passCount });
+        nextDsaProblem();
+      } catch (e) {
+        document.getElementById('testCaseResults').innerHTML = '<span style="color:#e53e3e">Error running code.</span>';
+      }
+    };
+
+    document.getElementById('skipCodeBtn').onclick = function() {
+      dsaResults.push({ problem: DSA_PROBLEMS[dsaIndex].title, attempted: false, passed: 0 });
+      nextDsaProblem();
+    };
+
+    function nextDsaProblem() {
+      dsaIndex++;
+      if (dsaIndex < DSA_PROBLEMS.length) {
+        showDsaProblem();
+      } else {
+        showDsaFeedback();
+      }
+    }
+
+    function showDsaFeedback() {
+      let html = '<h3 class="text-xl font-bold mb-4">DSA Round Feedback</h3><ul>';
+      dsaResults.forEach((r, i) => {
+        html += `<li>Problem ${i+1}: ${r.attempted ? `Attempted, Passed ${r.passed} test cases` : 'Skipped'}</li>`;
+      });
+      html += '</ul>';
+      document.getElementById('dsaFeedback').innerHTML = html;
+      document.getElementById('monacoEditor').style.display = 'none';
+      document.getElementById('submitCodeBtn').style.display = 'none';
+      document.getElementById('skipCodeBtn').style.display = 'none';
+    }
+
+    // Judge0 API integration
+    async function submitToJudge0(sourceCode, language, testCases) {
+      const langMap = { python: 71, javascript: 63, java: 62, cpp: 54 };
+      const langId = langMap[language] || 71;
+      const results = [];
+      for (const tc of testCases) {
+        const input = tc.input.replace(/\n/g, '\n');
+        const expected = tc.expected;
+        const resp = await fetch("https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
+            "x-rapidapi-key": "39049afc32msh2c7f47118d163ddp1cc143jsnfe6421e2fcfe"
+          },
+          body: JSON.stringify({
+            source_code: sourceCode,
+            language_id: langId,
+            stdin: input,
+          })
+        });
+        const data = await resp.json();
+        results.push({
+          input,
+          expected,
+          output: data.stdout ? data.stdout.trim() : (data.stderr || data.compile_output || ""),
+          pass: data.stdout && data.stdout.trim() === expected
+        });
+      }
+      return results;
+    }
+
+    // Start with the first problem
+    showDsaProblem();
+  </script>
+</body>
+</html> 

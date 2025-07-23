@@ -55,7 +55,7 @@ export class GeminiAPI {
       const prompt = `Generate exactly 10 professional interview questions for a ${jobTitle} position.
 
 1-5: Behavioral (non-coding) questions. These should focus on soft skills, teamwork, problem-solving, communication, and situational judgment. Do NOT include any coding or programming in these.
-6-10: Coding/programming questions. These should require the candidate to write code, solve algorithms, or implement functions. Each should be suitable for a technical interview.
+6-10: Coding/programming questions. These should require the candidate to theorize code like explain sorting alorithm in this they dont have to write code but tell thoery.
 
 Format: Return exactly 10 questions, numbered 1-10, one per line. The first 5 must be behavioral, the last 5 must be coding/programming questions. Make the questions realistic and commonly asked in interviews.`;
       return await this.generateContent(prompt);
