@@ -788,7 +788,7 @@ class JobPrepApp {
         if (debugDiv) debugDiv.textContent += '\nNo candidates found.';
         return;
       }
-      candidatesList.innerHTML = data.map(app => window.app.jobManager.renderSimpleApplicationCard(app)).join("");
+      candidatesList.innerHTML = data.map(app => window.renderEmployerApplicationCard(app)).join("");
       if (debugDiv) debugDiv.textContent += `\nLoaded ${data.length} candidates.`;
     } catch (e) {
       candidatesList.innerHTML = '<p class="text-red-500 text-center py-8">Error loading candidates.</p>';
@@ -1435,3 +1435,93 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = 'resume-download.html';
   };
 });
+
+// Employer: Render application card with Ignore/Call buttons
+window.renderEmployerApplicationCard = function(app) {
+  let actionBtns = '';
+  if (app.status === 'pending') {
+    actionBtns = `
+      <button class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 mr-2" onclick="window.ignoreApplication('${app.id}')">Ignore</button>
+      <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" onclick="window.callForInterview('${app.id}', '${app.email}', '${app.name}')">Call for Interview</button>
+    `;
+  } else if (app.status === 'ignored') {
+    actionBtns = `<span class='text-red-600 font-semibold'>Ignored</span>`;
+  } else if (app.status === 'called') {
+    actionBtns = `<button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onclick="window.openChatModal({id: '${app.id}', email: '${app.email}', name: '${app.name}'})">Chat</button>`;
+  }
+  return `
+    <div class="candidate-card bg-white p-6 rounded-lg shadow-md border border-gray-200 mb-4">
+      <div class="mb-2">
+        <h3 class="text-lg font-semibold text-gray-800">${app.name || 'N/A'}</h3>
+        <p class="text-gray-600 text-sm">Email: ${app.email || 'N/A'}</p>
+        <p class="text-gray-600 text-sm">Status: <b>${app.status}</b></p>
+      </div>
+      <div class="mt-4 flex justify-end">${actionBtns}</div>
+    </div>
+  `;
+};
+
+window.ignoreApplication = async function(applicationId) {
+  const { data, error } = await window.app.jobManager.updateApplicationStatusInSupabase(applicationId, 'ignored');
+  if (!error) {
+    alert('Application ignored.');
+    window.location.reload();
+  } else {
+    alert('Error ignoring application.');
+  }
+};
+
+window.callForInterview = async function(applicationId, email, name) {
+  const { data, error } = await window.app.jobManager.updateApplicationStatusInSupabase(applicationId, 'called');
+  if (!error) {
+    alert('Candidate called for interview!');
+    // Optionally, open chat modal immediately
+    window.openChatModal({id: applicationId, email, name});
+    window.location.reload();
+  } else {
+    alert('Error updating status.');
+  }
+};
+
+// Candidate: Render application card with Chat button if status is 'called'
+window.renderSeekerApplicationCard = function(app) {
+  let chatBtn = '';
+  if (app.status === 'called') {
+    chatBtn = `<button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 ml-2" onclick='window.openChatModal({id: "${app.id}", email: "${app.email}", name: "${app.name}"})'>Chat with Employer</button>`;
+    // Show notification if just changed to called
+    if (!localStorage.getItem('notified-' + app.id)) {
+      alert('You have been called for interview! You can now chat with the employer.');
+      localStorage.setItem('notified-' + app.id, 'true');
+    }
+  }
+  return `
+    <div class="candidate-card bg-white p-6 rounded-lg shadow-md border border-gray-200 mb-4">
+      <div class="mb-2">
+        <h3 class="text-lg font-semibold text-gray-800">${app.name || 'N/A'}</h3>
+        <p class="text-gray-600 text-sm">Email: ${app.email || 'N/A'}</p>
+        <p class="text-gray-600 text-sm">Status: <b>${app.status}</b></p>
+      </div>
+      <div class="mt-4 flex justify-end">${chatBtn}</div>
+    </div>
+  `;
+};
+
+// Chat modal logic remains as before, using Ably and application id for channel
+function openChatModal(app) {
+  const chatModal = document.getElementById('chatModal');
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+  if (chatModal) chatModal.classList.remove('hidden');
+  if (chatMessages) chatMessages.innerHTML = '';
+  if (chatInput) chatInput.value = '';
+  // Use application id as unique channel name
+  const channelName = 'chat-application-' + (app.id || Math.random().toString(36).slice(2));
+  // Disconnect previous channel if any
+  if (window.ablyChannel) window.ablyChannel.detach();
+  if (!window.ablyRealtime) window.ablyRealtime = new Ably.Realtime(ABLY_API_KEY);
+  window.ablyChannel = window.ablyRealtime.channels.get(channelName);
+  window.ablyChannel.subscribe('message', (msg) => {
+    appendChatMessage(msg.data, msg.clientId === window.ablyRealtime.auth.clientId ? 'You' : 'Other');
+  });
+}
+window.openChatModal = openChatModal;

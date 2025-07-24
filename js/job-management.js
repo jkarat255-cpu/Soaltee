@@ -177,11 +177,32 @@ export class JobManager {
     this.saveApplications()
   }
 
+  // Update application status in Supabase
+  async updateApplicationStatusInSupabase(applicationId, status) {
+    const { data, error } = await supabase
+      .from('applications')
+      .update({ status })
+      .eq('id', applicationId)
+      .select()
+      .single();
+    return { data, error };
+  }
+
+  // Fetch applications for a specific user (candidate)
+  async fetchApplicationsByEmail(email) {
+    const { data, error } = await supabase
+      .from('applications')
+      .select('*')
+      .eq('email', email)
+      .order('id', { ascending: false });
+    return { data, error };
+  }
+
   // Fetch all candidates from the 'applications' table in Supabase
   async fetchAllApplicationsFromSupabase() {
     const { data, error } = await supabase
       .from('applications')
-      .select('name, email, phone, description')
+      .select('id, name, email, phone, description, status')
       .order('id', { ascending: false });
     return { data, error };
   }
