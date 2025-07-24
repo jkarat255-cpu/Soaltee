@@ -102,6 +102,13 @@ export class SpeechManager {
     utterance.pitch = options.pitch || 1
     utterance.volume = options.volume || 0.8
 
+    // Always try to use a female voice if available
+    const voices = this.synthesis.getVoices();
+    const femaleVoice = voices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('woman') || v.name.toLowerCase().includes('girl') || (v.lang.startsWith('en') && v.name.toLowerCase().includes('us') && v.name.toLowerCase().includes('f')) || v.gender === 'female');
+    if (femaleVoice) {
+      utterance.voice = femaleVoice;
+    }
+
     if (options.onEnd) {
       utterance.onend = options.onEnd
     }

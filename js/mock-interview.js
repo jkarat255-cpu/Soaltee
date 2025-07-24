@@ -13,6 +13,7 @@ let isRecording = false;
 let confidenceAnalyzer = new ConfidenceAnalyzer();
 let speechManager = new SpeechManager();
 let videoStream = null;
+let jobTitle = '';
 
 function displayQuestion(idx) {
   const qBox = document.getElementById('aiQuestion');
@@ -61,14 +62,20 @@ function showFinalFeedback() {
 }
 
 async function fetchQuestions() {
-  let resumeText = localStorage.getItem('resumeText') || '';
-  let jobDescription = localStorage.getItem('jobDescription') || '';
-  if (!resumeText) resumeText = prompt('Paste your resume text (or leave blank):') || '';
-  if (!jobDescription) jobDescription = prompt('Paste the job description:') || '';
+  // Clear previous values to avoid old data influencing the questions
+  localStorage.removeItem('resumeText');
+  localStorage.removeItem('jobDescription');
+
+  let resumeText = '';
+  let jobDescription = '';
+  // Always prompt for job title
+  jobTitle = prompt('Enter the job title or position for this mock interview:') || '';
+  resumeText = prompt('Paste your resume text (or leave blank):') || '';
+  jobDescription = prompt('Paste the job description:') || '';
   localStorage.setItem('resumeText', resumeText);
   localStorage.setItem('jobDescription', jobDescription);
   const gemini = new GeminiAPI();
-  let questionsText = await gemini.generateMockInterviewQuestions(resumeText, jobDescription, true);
+  let questionsText = await gemini.generateMockInterviewQuestions(resumeText, jobDescription, true, jobTitle);
   questions = questionsText
     .split('\n')
     .filter(q => q.trim())
@@ -192,4 +199,21 @@ document.addEventListener('DOMContentLoaded', async () => {
       recordBtn.textContent = '🎤 Record Answer';
     }
   };
+
+  // Add transcript area
+  let transcriptBox = document.createElement('div');
+  transcriptBox.id = 'liveTranscript';
+  transcriptBox.style.background = 'var(--bg-accent)';
+  transcriptBox.style.color = 'var(--text-main)';
+  transcriptBox.style.borderRadius = '0.5rem';
+  transcriptBox.style.padding = '1rem';
+  transcriptBox.style.marginTop = '1.5rem';
+  transcriptBox.style.fontSize = '1.1rem';
+  transcriptBox.textContent = 'Transcript will appear here...';
+  userHalf.appendChild(transcriptBox);
+
+  // Update transcript live
+  speechManager.setTranscriptCallback((transcript, final) => {
+    transcriptBox.textContent = transcript || 'Transcript will appear here...';
+  });
 }); 

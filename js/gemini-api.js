@@ -74,12 +74,15 @@ Format: Return exactly 10 questions, numbered 1-10, one per line. The first 5 mu
     }
   }
 
-  async generateMockInterviewQuestions(resumeText, jobDescription, isTechnical = false) {
+  async generateMockInterviewQuestions(resumeText, jobDescription, isTechnical = false, jobTitle = "") {
     const technicalNote = isTechnical
       ? "Include 3-4 technical/coding questions and 6-7 behavioral questions."
       : "Focus on behavioral and situational questions based on the resume and job requirements."
 
-    const prompt = `Based on this resume and job description, generate exactly 10 interview questions:
+    const prompt = `Based on this resume, job description, and job title, generate exactly 10 interview questions:
+
+        JOB TITLE:
+        ${jobTitle}
 
         RESUME:
         ${resumeText}
@@ -90,7 +93,7 @@ Format: Return exactly 10 questions, numbered 1-10, one per line. The first 5 mu
         ${technicalNote}
 
         Format: Return exactly 10 questions, numbered 1-10, one per line.
-        Make questions specific to the candidate's experience and the job requirements.`
+        Make questions specific to the candidate's experience, the job title, and the job requirements.`
 
     return await this.generateContent(prompt)
   }

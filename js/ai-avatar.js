@@ -4,7 +4,8 @@ const nodeAvatar = document.getElementById('avatar');
 const head = new TalkingHead(nodeAvatar, {
   ttsEndpoint: "https://plachtaa-headtts.hf.space/run/predict", // HeadTTS HuggingFace Space
   ttsLang: "en",
-  ttsVoice: "en-US-001", // or any supported voice
+  // Use a natural-sounding female voice (see HeadTTS docs for more options)
+  ttsVoice: "en-US-004", // en-US-004 is a female voice in HeadTTS
   lipsyncLang: "en"
 });
 

@@ -53,6 +53,7 @@
             box-shadow: 0 1px 4px #0003;
             transition: background 0.2s, color 0.2s, box-shadow 0.2s, outline 0.2s;
             outline: none;
+            border-bottom: none !important;
         }
         .login-card button:hover, .login-card button:focus {
             background: #ffd166;
@@ -60,20 +61,20 @@
             box-shadow: 0 2px 8px #0005;
             outline: 2px solid var(--accent-amber);
         }
-        .tab-active {
-            color: var(--accent-blue) !important;
-            border-bottom: 2.5px solid var(--accent-blue) !important;
-            background: rgba(100,181,246,0.08) !important;
+        .tab-active, .active {
+            background: #2563eb !important;
+            color: #fff !important;
+            border-bottom: 2.5px solid #2563eb !important;
             font-weight: 700;
             text-shadow: 0 1px 2px #0002;
         }
         .tab-inactive {
-            color: var(--text-muted) !important;
-            border-bottom: 2px solid transparent !important;
+            color: #000 !important;
             background: transparent !important;
             opacity: 0.85;
+            border-bottom: none !important;
         }
-        .tab-active:focus, .tab-inactive:focus {
+        .tab-active:focus, .tab-inactive:focus, .active:focus {
             outline: 2px solid var(--accent-blue) !important;
             box-shadow: 0 0 0 2px var(--accent-blue) !important;
         }
@@ -98,6 +99,32 @@
             outline: 2px solid var(--accent-amber);
             background: #3b2f23;
             box-shadow: 0 0 0 2px var(--accent-amber);
+        }
+        /* Style the main Sign In and Sign Up submit buttons for visibility */
+        button[type="submit"], .submit-btn {
+            background: #2563eb !important; /* Tailwind blue-600 */
+            color: #fff !important;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            padding: 0.75rem 0;
+            transition: background 0.2s;
+        }
+        button[type="submit"]:hover, .submit-btn:hover {
+            background: #1d4ed8 !important; /* Tailwind blue-700 */
+        }
+        /* If you want a different color for Sign Up, add a class to that button and style it here */
+        /* Tab buttons: default black, white text; selected white, black text */
+        .tab-btn {
+            background: #000 !important;
+            color: #fff !important;
+            border: none !important;
+            border-radius: 0.5rem 0.5rem 0 0;
+            font-weight: 600;
+            transition: background 0.2s, color 0.2s;
+        }
+        .tab-btn.selected {
+            background: #fff !important;
+            color: #000 !important;
         }
     </style>
 </head>
@@ -126,11 +153,6 @@
                 <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"><i class="fas fa-sign-in-alt mr-2"></i>Sign In</button>
                 <div class="text-right text-xs mt-1"><a href="#" class="text-blue-500 hover:underline">Forgot password?</a></div>
             </form>
-            <div class="flex items-center my-4">
-                <div class="flex-grow border-t border-gray-200"></div>
-                <span class="mx-2 text-gray-400 text-xs">or</span>
-                <div class="flex-grow border-t border-gray-200"></div>
-            </div>
             <form id="seekerSignUpForm" class="space-y-4 hidden animate-fade-in">
                 <input type="text" id="seekerSignUpName" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-400" placeholder="Full Name" required>
                 <input type="email" id="seekerSignUpEmail" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-400" placeholder="Email" required>
@@ -149,11 +171,6 @@
                 <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"><i class="fas fa-sign-in-alt mr-2"></i>Sign In</button>
                 <div class="text-right text-xs mt-1"><a href="#" class="text-blue-500 hover:underline">Forgot password?</a></div>
             </form>
-            <div class="flex items-center my-4">
-                <div class="flex-grow border-t border-gray-200"></div>
-                <span class="mx-2 text-gray-400 text-xs">or</span>
-                <div class="flex-grow border-t border-gray-200"></div>
-            </div>
             <form id="employerSignUpForm" class="space-y-4 hidden animate-fade-in">
                 <input type="text" id="employerSignUpName" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-400" placeholder="Full Name" required>
                 <input type="email" id="employerSignUpEmail" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-400" placeholder="Email" required>
@@ -172,5 +189,47 @@
             document.body.classList.remove('opacity-0');
         });
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Seeker tabs
+            const seekerSignInTab = document.getElementById('seekerSignInTab');
+            const seekerSignUpTab = document.getElementById('seekerSignUpTab');
+            if (seekerSignInTab && seekerSignUpTab) {
+                seekerSignInTab.classList.add('tab-btn', 'selected');
+                seekerSignUpTab.classList.add('tab-btn');
+                seekerSignInTab.addEventListener('click', function() {
+                    seekerSignInTab.classList.add('selected');
+                    seekerSignUpTab.classList.remove('selected');
+                });
+                seekerSignUpTab.addEventListener('click', function() {
+                    seekerSignUpTab.classList.add('selected');
+                    seekerSignInTab.classList.remove('selected');
+                });
+            }
+            // Employer tabs
+            const employerSignInTab = document.getElementById('employerSignInTab');
+            const employerSignUpTab = document.getElementById('employerSignUpTab');
+            if (employerSignInTab && employerSignUpTab) {
+                employerSignInTab.classList.add('tab-btn', 'selected');
+                employerSignUpTab.classList.add('tab-btn');
+                employerSignInTab.addEventListener('click', function() {
+                    employerSignInTab.classList.add('selected');
+                    employerSignUpTab.classList.remove('selected');
+                });
+                employerSignUpTab.addEventListener('click', function() {
+                    employerSignUpTab.classList.add('selected');
+                    employerSignInTab.classList.remove('selected');
+                });
+            }
+        });
+    </script>
+    <style>
+        /* Add a visible highlight for the active tab */
+        .active {
+            background: #2563eb !important;
+            color: #fff !important;
+            border-bottom: 2px solid #2563eb !important;
+        }
+    </style>
 </body>
 </html> 
