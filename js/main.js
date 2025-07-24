@@ -749,6 +749,116 @@ function showLoading(show) {
   }
 }
 
+// Role-based feature protection for JobPrep Pro
+
+document.addEventListener('DOMContentLoaded', function () {
+    const userRole = localStorage.getItem('userRole');
+    // Employer-only features
+    const postJobBtn = document.querySelector('[onclick*="showSection(\'postJob\')"]');
+    const manageJobsBtn = document.querySelector('[onclick*="showSection(\'manageJobs\')"]');
+    // Seeker-only feature
+    const jobSearchBtn = document.querySelector('[onclick*="showSection(\'jobSearch\')"]');
+    // Main content container
+    const mainContainer = document.querySelector('.container.mx-auto');
+    // Navbar role buttons
+    const jobSeekerBtn = document.getElementById('jobSeekerBtn');
+    const employerBtn = document.getElementById('employerBtn');
+
+    // Modal for login prompt
+    let loginModal = document.getElementById('loginModal');
+    if (!loginModal) {
+        loginModal = document.createElement('div');
+        loginModal.id = 'loginModal';
+        loginModal.innerHTML = `
+            <div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+                <div class="bg-white p-8 rounded-lg shadow-lg text-center max-w-xs w-full">
+                    <h3 class="text-lg font-bold mb-2">Login Required</h3>
+                    <p class="mb-4 text-gray-600">Please log in to access this feature.</p>
+                    <button id="goToLoginBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Go to Login</button>
+                </div>
+            </div>
+        `;
+        loginModal.style.display = 'none';
+        document.body.appendChild(loginModal);
+    }
+    function showLoginModal() {
+        loginModal.style.display = '';
+        if (mainContainer) mainContainer.style.filter = 'blur(6px)';
+        document.getElementById('goToLoginBtn').onclick = () => {
+            window.location.href = 'auth.html';
+        };
+    }
+    function hideLoginModal() {
+        loginModal.style.display = 'none';
+        if (mainContainer) mainContainer.style.filter = '';
+    }
+
+    // Always show features, but protect with modal if not logged in
+    if (postJobBtn) {
+        postJobBtn.style.display = '';
+        postJobBtn.addEventListener('click', function (e) {
+            if (userRole !== 'employer') {
+                e.preventDefault();
+                showLoginModal();
+            } else {
+                hideLoginModal();
+            }
+        });
+    }
+    if (manageJobsBtn) {
+        manageJobsBtn.style.display = '';
+        manageJobsBtn.addEventListener('click', function (e) {
+            if (userRole !== 'employer') {
+                e.preventDefault();
+                showLoginModal();
+            } else {
+                hideLoginModal();
+            }
+        });
+    }
+    if (jobSearchBtn) {
+        jobSearchBtn.style.display = '';
+        jobSearchBtn.addEventListener('click', function (e) {
+            if (userRole !== 'seeker') {
+                e.preventDefault();
+                showLoginModal();
+            } else {
+                hideLoginModal();
+            }
+        });
+    }
+
+    // Hide modal and blur if user logs in (on page load)
+    if (userRole) {
+        hideLoginModal();
+    }
+
+    // After login, show correct dashboard section
+    if (userRole === 'seeker') {
+        if (typeof showSection === 'function') showSection('jobSeekerDashboard');
+    } else if (userRole === 'employer') {
+        if (typeof showSection === 'function') showSection('employerDashboard');
+    }
+
+    // Prevent role switching after login
+    if (jobSeekerBtn) {
+        jobSeekerBtn.addEventListener('click', function (e) {
+            if (userRole === 'employer') {
+                e.preventDefault();
+                showLoginModal();
+            }
+        });
+    }
+    if (employerBtn) {
+        employerBtn.addEventListener('click', function (e) {
+            if (userRole === 'seeker') {
+                e.preventDefault();
+                showLoginModal();
+            }
+        });
+    }
+});
+
 // Initialize the application
 let app
 document.addEventListener("DOMContentLoaded", () => {

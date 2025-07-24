@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirming Email - JobPrep Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 via-purple-300 to-pink-200">
+    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md flex flex-col items-center">
+        <div class="mb-4">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+        </div>
+        <h2 class="text-xl font-bold text-blue-700 mb-2">Confirming your email...</h2>
+        <p class="text-gray-500 text-center mb-2">Please wait while we verify your account and set things up.</p>
+        <div id="confirmMessage" class="text-center text-sm text-gray-600 mt-4"></div>
+    </div>
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+        const SUPABASE_URL = 'https://ajlbsparzifaqlcwcsdh.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqbGJzcGFyemlmYXFsY3djc2RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMyOTU4NjYsImV4cCI6MjA2ODg3MTg2Nn0.qJCIb1q1ug4CiwqWKryZt_1LQWIWVnXk3o53VxO--HQ';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function getHashParams() {
+            const hash = window.location.hash.substr(1);
+            return Object.fromEntries(new URLSearchParams(hash));
+        }
+
+        async function handleConfirmation() {
+            const params = getHashParams();
+            const msgEl = document.getElementById('confirmMessage');
+            if (!params.access_token || !params.refresh_token) {
+                msgEl.textContent = 'Invalid or missing confirmation token.';
+                return;
+            }
+            // Set session
+            const { data, error } = await supabase.auth.setSession({
+                access_token: params.access_token,
+                refresh_token: params.refresh_token
+            });
+            if (error) {
+                msgEl.textContent = 'Error setting session: ' + error.message;
+                return;
+            }
+            // Get user info
+            const { data: userData, error: userError } = await supabase.auth.getUser();
+            if (userError || !userData.user) {
+                msgEl.textContent = 'Could not fetch user info.';
+                return;
+            }
+            const email = userData.user.email;
+            // Try to insert into both tables (ignore errors if already exists)
+            let role = null;
+            // Try seeker first
+            let { data: seeker, error: seekerError } = await supabase.from('user(seeker)').select('*').eq('email', email).single();
+            if (!seeker) {
+                // Try to get name from query param or fallback
+                const name = params.name || email.split('@')[0];
+                await supabase.from('user(seeker)').insert([{ email, name }]);
+                role = 'seeker';
+            }
+            // Try employer if not found in seeker
+            let { data: employer, error: empError } = await supabase.from('user(employer)').select('*').eq('email', email).single();
+            if (!employer && !role) {
+                const name = params.name || email.split('@')[0];
+                await supabase.from('user(employer)').insert([{ email, name }]);
+                role = 'employer';
+            }
+            // Store role and email
+            localStorage.setItem('userEmail', email);
+            if (role) localStorage.setItem('userRole', role);
+            msgEl.textContent = 'Email confirmed! Redirecting to your dashboard...';
+            setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+        }
+        handleConfirmation();
+    </script>
+</body>
+</html> 
