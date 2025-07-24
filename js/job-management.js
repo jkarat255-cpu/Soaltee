@@ -120,10 +120,11 @@ export class JobManager {
       .insert([
         {
           job_id: jobId,
-          applicant_name: applicationData.name || 'Anonymous',
-          cover_letter: applicationData.coverLetter || '',
+          name: applicationData.name || 'Anonymous',
+          email: applicationData.email || '',
+          phone: applicationData.phone || '',
+          description: applicationData.description || '',
           status: 'pending',
-          // Add more fields as needed
         },
       ])
       .select()
@@ -176,6 +177,32 @@ export class JobManager {
     this.saveApplications()
   }
 
+  // Fetch all candidates from the 'applications' table in Supabase
+  async fetchAllApplicationsFromSupabase() {
+    const { data, error } = await supabase
+      .from('applications')
+      .select('name, email, phone, description')
+      .order('id', { ascending: false });
+    return { data, error };
+  }
+
+  // Render a candidate card using only the columns from 'dup'
+  renderSimpleApplicationCard(app) {
+    return `
+      <div class="candidate-card bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <div class="mb-2">
+          <h3 class="text-lg font-semibold text-gray-800">${app.name || 'N/A'}</h3>
+          <p class="text-gray-600 text-sm">Email: ${app.email || 'N/A'}</p>
+          <p class="text-gray-600 text-sm">Phone: ${app.phone || 'N/A'}</p>
+        </div>
+        <div class="mt-2">
+          <h4 class="font-medium text-gray-700 mb-1">Description:</h4>
+          <p class="text-gray-600 text-sm bg-gray-50 p-3 rounded">${app.description || ''}</p>
+        </div>
+      </div>
+    `;
+  }
+
   renderJobCard(job, isEmployer = false) {
     const applicationCount = job.applications ? job.applications.length : 0
 
@@ -219,7 +246,7 @@ export class JobManager {
                             <button onclick="viewJobDetails('${job.id}')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
                                 View Details
                             </button>
-                            <button onclick="applyForJob('${job.id}')" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
+                            <button onclick="window.location.href='job-details.html?id=${job.id}'" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
                                 Apply Now
                             </button>
                         `
@@ -243,7 +270,7 @@ export class JobManager {
             <div class="candidate-card bg-white p-6 rounded-lg shadow-md border border-gray-200">
                 <div class="flex justify-between items-start mb-4">
                     <div>
-                        <h3 class="text-lg font-semibold text-gray-800">${application.applicantName}</h3>
+                        <h3 class="text-lg font-semibold text-gray-800">${application.name}</h3>
                         <p class="text-gray-600">${application.jobTitle} at ${application.company}</p>
                         <p class="text-sm text-gray-500 mt-1">Applied: ${new Date(application.appliedDate).toLocaleDateString()}</p>
                     </div>
@@ -253,11 +280,11 @@ export class JobManager {
                 </div>
                 
                 ${
-                  application.coverLetter
+                  application.description
                     ? `
                     <div class="mb-4">
-                        <h4 class="font-medium text-gray-700 mb-2">Cover Letter:</h4>
-                        <p class="text-gray-600 text-sm bg-gray-50 p-3 rounded">${application.coverLetter}</p>
+                        <h4 class="font-medium text-gray-700 mb-2">Description:</h4>
+                        <p class="text-gray-600 text-sm bg-gray-50 p-3 rounded">${application.description}</p>
                     </div>
                 `
                     : ""

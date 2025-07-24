@@ -77,6 +77,12 @@ class JobPrepApp {
     // File upload listeners
     document.getElementById("existingResume")?.addEventListener("change", this.handleResumeUpload.bind(this))
     document.getElementById("resumeFile")?.addEventListener("change", this.handleMockResumeUpload.bind(this))
+
+    // Add: Refresh List button for Candidates section
+    const refreshBtn = document.getElementById("refreshCandidatesBtn");
+    if (refreshBtn) {
+      refreshBtn.addEventListener("click", () => this.loadApplicationsForEmployer());
+    }
   }
 
   selectRole(role) {
@@ -109,7 +115,7 @@ class JobPrepApp {
       "jobSearch",
       "postJob",
       "manageJobs",
-      "candidates",
+      // "candidates", // Remove candidates section from sections array
     ];
     sections.forEach((id) => {
       const element = document.getElementById(id);
@@ -131,8 +137,11 @@ class JobPrepApp {
       this.loadJobListings();
     } else if (sectionId === "manageJobs") {
       this.loadPostedJobs();
-    } else if (sectionId === "candidates") {
-      this.loadCandidates();
+    } // Remove candidates section logic
+
+    // Add: Load applications from Supabase for employer
+    if (sectionId === "candidates") {
+      this.loadApplicationsForEmployer();
     }
   }
 
@@ -751,20 +760,41 @@ class JobPrepApp {
     }
   }
 
-  loadCandidates() {
-    const candidatesList = document.getElementById("candidatesList")
-    if (candidatesList) {
-      const applications = this.jobManager.getAllApplications()
-      if (applications.length === 0) {
-        candidatesList.innerHTML = '<p class="text-gray-500 text-center py-8">No applications received yet.</p>'
-      } else {
-        candidatesList.innerHTML = applications.map((app) => this.jobManager.renderApplicationCard(app)).join("")
-      }
-    }
-  }
+  // Remove loadCandidates() method entirely
 
   goHome() {
     this.selectRole(this.currentRole)
+  }
+
+  // Fetch and display candidates from Supabase 'dup' table in candidates section
+  async loadApplicationsForEmployer() {
+    const userRole = localStorage.getItem('userRole');
+    if (userRole !== 'employer') return;
+    const candidatesList = document.getElementById("candidatesList");
+    const debugDiv = document.getElementById("candidatesDebug");
+    if (!candidatesList) return;
+    candidatesList.innerHTML = '<p class="text-gray-500 text-center py-8">Loading candidates...</p>';
+    try {
+      const { data, error } = await window.app.jobManager.fetchAllApplicationsFromSupabase();
+      if (debugDiv) debugDiv.textContent = `Supabase response:\n${JSON.stringify({ data, error }, null, 2)}`;
+      console.log('Supabase candidates fetch:', { data, error });
+      if (error || !data) {
+        candidatesList.innerHTML = '<p class="text-red-500 text-center py-8">Error loading candidates.</p>';
+        if (debugDiv) debugDiv.textContent += `\nError: ${error ? error.message : 'Unknown error'}`;
+        return;
+      }
+      if (data.length === 0) {
+        candidatesList.innerHTML = '<p class="text-gray-500 text-center py-8">No candidates found yet.</p>';
+        if (debugDiv) debugDiv.textContent += '\nNo candidates found.';
+        return;
+      }
+      candidatesList.innerHTML = data.map(app => window.app.jobManager.renderSimpleApplicationCard(app)).join("");
+      if (debugDiv) debugDiv.textContent += `\nLoaded ${data.length} candidates.`;
+    } catch (e) {
+      candidatesList.innerHTML = '<p class="text-red-500 text-center py-8">Error loading candidates.</p>';
+      if (debugDiv) debugDiv.textContent = `Exception: ${e && e.stack ? e.stack : e}`;
+      console.error('Exception in loadApplicationsForEmployer:', e);
+    }
   }
 }
 
@@ -1083,6 +1113,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Initialize the application at the top level
 const app = new JobPrepApp();
+window.app = app;
 window.resumeBuilder = app.resumeBuilder;
 window.selectRole = (...args) => app.selectRole(...args);
 window.showSection = (...args) => app.showSection(...args);

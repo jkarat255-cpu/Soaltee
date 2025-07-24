@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Details & Apply</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+  <style>
+    body { background: var(--bg-main); color: var(--text-main); font-family: 'Inter', Arial, sans-serif; }
+    .container { max-width: 600px; margin: 2rem auto; background: var(--bg-card); border-radius: 1.2rem; box-shadow: 0 2px 16px #0006; padding: 2.5rem; }
+    .job-title { font-size: 2rem; font-weight: bold; color: var(--accent-amber); margin-bottom: 0.5rem; }
+    .job-company { font-size: 1.2rem; color: var(--accent-blue); margin-bottom: 1rem; }
+    .job-desc { margin-bottom: 1.5rem; }
+    .form-label { font-weight: 600; margin-bottom: 0.3rem; display: block; }
+    .form-input { width: 100%; padding: 0.7rem 1rem; border-radius: 0.7rem; border: 1px solid var(--border-main); background: var(--bg-accent); color: var(--text-main); margin-bottom: 1rem; font-size: 1rem; }
+    .form-btn { background: var(--accent-blue); color: var(--bg-card); font-weight: 600; padding: 0.8rem 2.2rem; border-radius: 0.8rem; font-size: 1.1rem; box-shadow: 0 1px 4px #0002; border: none; cursor: pointer; }
+    .form-btn:hover { background: var(--accent-amber); color: var(--bg-card); }
+    .msg { margin-top: 1rem; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="jobDetails">
+      <div class="job-title" id="jobTitle">Loading...</div>
+      <div class="job-company" id="jobCompany"></div>
+      <div class="job-desc" id="jobDescription"></div>
+      <div class="job-desc" id="jobRequirements"></div>
+      <div class="job-desc" id="jobSalary"></div>
+      <div class="job-desc" id="jobLocation"></div>
+      <div class="job-desc" id="jobType"></div>
+    </div>
+    <hr style="margin:2rem 0;border:0;border-top:1px solid var(--border-main);">
+    <h3 style="font-size:1.3rem;font-weight:700;margin-bottom:1rem;">Apply for this Job</h3>
+    <form id="applicationForm">
+      <label class="form-label" for="applicantName">Name</label>
+      <input class="form-input" type="text" id="applicantName" required>
+      <label class="form-label" for="applicantEmail">Email</label>
+      <input class="form-input" type="email" id="applicantEmail" required>
+      <label class="form-label" for="applicantPhone">Phone Number</label>
+      <input class="form-input" type="tel" id="applicantPhone" required>
+      <button class="form-btn" type="submit">Submit Application</button>
+    </form>
+    <div class="msg" id="formMsg"></div>
+  </div>
+  <script>
+    // Use the actual Supabase credentials from supabase-auth.js
+    const SUPABASE_URL = 'https://ajlbsparzifaqlcwcsdh.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqbGJzcGFyemlmYXFsY3djc2RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMyOTU4NjYsImV4cCI6MjA2ODg3MTg2Nn0.qJCIb1q1ug4CiwqWKryZt_1LQWIWVnXk3o53VxO--HQ';
+    let supabase;
+    try {
+      if (window.supabase && window.supabase.from) {
+        supabase = window.supabase;
+        console.log('[DEBUG] Using existing window.supabase');
+      } else if (window.supabase && window.supabase.createClient) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        window.supabase = supabase;
+        console.log('[DEBUG] Created new supabase client');
+      } else {
+        throw new Error('Supabase client could not be initialized. Check script loading.');
+      }
+    } catch (e) {
+      console.error('[DEBUG] Supabase client init error:', e);
+      document.getElementById('formMsg').textContent = 'Supabase client error: ' + (e.message || e);
+    }
+    // Get job ID from query string
+    function getJobId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id');
+    }
+    // Fetch job details (try localStorage, then Supabase)
+    async function loadJobDetails() {
+      const jobId = getJobId();
+      console.log('[DEBUG] Loading job details for id:', jobId);
+      if (!jobId || jobId === 'null' || isNaN(Number(jobId))) {
+        document.getElementById('jobTitle').textContent = 'Job details not loaded (no job ID in URL). You can still apply below.';
+        document.getElementById('jobCompany').textContent = '';
+        document.getElementById('jobDescription').textContent = '';
+        document.getElementById('jobRequirements').textContent = '';
+        document.getElementById('jobSalary').textContent = '';
+        document.getElementById('jobLocation').textContent = '';
+        document.getElementById('jobType').textContent = '';
+        return;
+      }
+      if (supabase) {
+        try {
+          const jobIdNum = Number(jobId);
+          const { data, error } = await supabase.from('job').select('*').eq('id', jobIdNum).single();
+          if (error) throw error;
+          const job = data;
+          console.log('[DEBUG] Loaded job from Supabase:', job);
+          document.getElementById('jobTitle').textContent = job.title || '';
+          document.getElementById('jobCompany').textContent = job.company || '';
+          document.getElementById('jobDescription').textContent = 'Description: ' + (job.description || '');
+          document.getElementById('jobRequirements').textContent = 'Requirements: ' + (job.requirements || '');
+          document.getElementById('jobSalary').textContent = 'Salary: ' + (job.salary || '');
+          document.getElementById('jobLocation').textContent = 'Location: ' + (job.location || '');
+          document.getElementById('jobType').textContent = 'Type: ' + (job.type || '');
+        } catch (err) {
+          document.getElementById('jobTitle').textContent = 'Job not found.';
+          document.getElementById('formMsg').textContent = 'Error loading job: ' + (err.message || err);
+          console.error('[DEBUG] Error loading job from Supabase:', err);
+          return;
+        }
+      }
+    }
+    loadJobDetails();
+    // Handle form submit
+    document.getElementById('applicationForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const name = document.getElementById('applicantName').value;
+      const email = document.getElementById('applicantEmail').value;
+      const phone = document.getElementById('applicantPhone').value;
+      const msgDiv = document.getElementById('formMsg');
+      msgDiv.textContent = 'Submitting...';
+      console.log('[DEBUG] Submitting application:', { name, email, phone });
+      try {
+        if (!supabase) throw new Error('Supabase client not initialized');
+        const { data, error } = await supabase.from('applications').insert([
+          { name, email, description: phone }
+        ]);
+        if (error) throw error;
+        msgDiv.style.color = '#22c55e';
+        msgDiv.textContent = 'Application submitted successfully!';
+        document.getElementById('applicationForm').reset();
+        console.log('[DEBUG] Application submitted:', data);
+      } catch (err) {
+        msgDiv.style.color = '#ef4444';
+        msgDiv.textContent = 'Error: ' + (err.message || err);
+        console.error('[DEBUG] Application error:', err);
+      }
+    };
+  </script>
+</body>
+</html> 

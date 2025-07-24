@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection@0.0.3"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.0.0"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.3/ace.js" integrity="sha512-+Qn6Qw6Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.3/ace.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="" style="background:var(--bg-main);color:var(--text-main);font-family:'Inter',Arial,sans-serif;">
@@ -415,9 +415,11 @@
         <div id="candidates" class="hidden">
             <div class="bg-white p-8 rounded-lg shadow-lg">
                 <h2 class="text-2xl font-bold mb-6">Candidates</h2>
+                <button id="refreshCandidatesBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4">Refresh List</button>
                 <div id="candidatesList" class="space-y-4">
                     <!-- Candidates will appear here -->
                 </div>
+                <div id="candidatesDebug" class="mt-4 text-xs bg-gray-200 p-2 rounded text-gray-800" style="white-space:pre-wrap;max-height:200px;overflow:auto;"></div>
             </div>
         </div>
     </div>
