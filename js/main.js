@@ -326,6 +326,50 @@ class JobPrepApp {
       const currentQuestion = this.interviewState.questions[this.interviewState.currentQuestionIndex]
       questionElement.textContent = currentQuestion
 
+      // Add speaker button next to question
+      let speakerBtn = document.getElementById('speakerBtn')
+      if (!speakerBtn) {
+        speakerBtn = document.createElement('button')
+        speakerBtn.id = 'speakerBtn'
+        speakerBtn.innerHTML = '🔊'
+        speakerBtn.title = 'Play question aloud'
+        speakerBtn.style = 'margin-left:0.7em;font-size:1.2em;background:none;border:none;cursor:pointer;vertical-align:middle;'
+        questionElement.parentNode.insertBefore(speakerBtn, questionElement.nextSibling)
+      } else {
+        speakerBtn.innerHTML = '🔊'
+        speakerBtn.title = 'Play question aloud'
+      }
+      let isSpeaking = false
+      let utterance = null
+      // Remove any previous event listeners
+      speakerBtn.onclick = null
+      speakerBtn.onmousedown = null
+      speakerBtn.onmouseup = null
+      speakerBtn.onmouseleave = null
+      // Toggle play/mute
+      speakerBtn.onclick = () => {
+        if (!isSpeaking) {
+          // Start speaking
+          this.speechManager.stopSpeaking()
+          isSpeaking = true
+          speakerBtn.innerHTML = '🔇'
+          speakerBtn.title = 'Mute'
+          this.speechManager.speak(currentQuestion, {
+            onEnd: () => {
+              isSpeaking = false
+              speakerBtn.innerHTML = '🔊'
+              speakerBtn.title = 'Play question aloud'
+            }
+          })
+        } else {
+          // Stop speaking
+          this.speechManager.stopSpeaking()
+          isSpeaking = false
+          speakerBtn.innerHTML = '🔊'
+          speakerBtn.title = 'Play question aloud'
+        }
+      }
+
       if (questionNumberElement) {
         questionNumberElement.textContent = this.interviewState.currentQuestionIndex + 1
       }
@@ -333,9 +377,6 @@ class JobPrepApp {
       if (transcriptionElement) {
         transcriptionElement.textContent = "Your speech will appear here..."
       }
-
-      // Speak the question
-      this.speechManager.speak(currentQuestion)
 
       // Always hide coding section during first 10 questions
       const codingSection = document.getElementById("codingSection")
@@ -356,6 +397,11 @@ class JobPrepApp {
   toggleRecording() {
     const recordBtn = document.getElementById("recordBtn")
     const nextBtn = document.getElementById("nextBtn")
+
+    // Stop any ongoing speech synthesis when starting recording
+    if (!this.interviewState.isRecording) {
+      this.speechManager.stopSpeaking()
+    }
 
     if (!this.interviewState.isRecording) {
       // Start recording
@@ -405,6 +451,7 @@ class JobPrepApp {
       if (feedbackArea) {
         feedbackArea.classList.remove("hidden")
         feedbackArea.innerHTML = '<span style="color:#888">Evaluating your answer...</span>'
+        feedbackArea.style.color = '#000' // Make all feedback text solid black
       }
       try {
         const jobContext = this.interviewState.jobTitle
@@ -417,11 +464,17 @@ class JobPrepApp {
           let lines = feedback.split(/\n|<br>/)
           let current = ''
           for (let line of lines) {
-            if (/relevancy/i.test(line)) current = 'relevancy'
-            else if (/completeness/i.test(line)) current = 'completeness'
-            else if (/professional communication|communication/i.test(line)) current = 'communication'
-            else if (/improvement/i.test(line)) current = 'improvements'
-            else if (current) criteria[current] += (criteria[current] ? ' ' : '') + line.trim()
+            if (/^\*\*Relevancy:?\*\*/i.test(line)) current = 'relevancy'
+            else if (/^\*\*Completeness:?\*\*/i.test(line)) current = 'completeness'
+            else if (/^\*\*Professional communication:?\*\*|^\*\*Communication:?\*\*/i.test(line)) current = 'communication'
+            else if (/^\*\*Improvements?:?\*\*/i.test(line)) current = 'improvements'
+            else if (/^- /.test(line) && current) {
+              // Only keep first 3 bullets for each
+              let arr = criteria[current] ? criteria[current].split('\n') : []
+              if (arr.length < 3) {
+                criteria[current] += (criteria[current] ? '\n' : '') + line.trim()
+              }
+            }
           }
           // Fallback: if not parsed, put all in improvements
           if (!criteria.relevancy && !criteria.completeness && !criteria.communication) criteria.improvements = feedback
@@ -434,19 +487,21 @@ class JobPrepApp {
             </div>
           </div>`
 
-          // Criteria flexboxes
+          // Criteria flexboxes with bold subheadings and bullet formatting
+          function renderBullets(text, heading) {
+            if (!text) return '-'
+            return `<div><div style='font-weight:600;margin-bottom:0.2rem;'><b>${heading}</b></div><ul style='margin:0 0 0 1.2em;padding:0;'>${text.split('\n').map(b => `<li>${b.replace(/^- /, '')}</li>`).join('')}</ul></div>`
+          }
+
           let criteriaBoxes = `<div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
             <div style="flex:1;min-width:180px;background:#e0f2fe;border-radius:1rem;padding:1rem 1.2rem;box-shadow:0 1px 4px #38bdf81a;">
-              <div style="font-weight:600;color:#0284c7;margin-bottom:0.3rem;">Relevancy</div>
-              <div style="color:#0369a1;">${criteria.relevancy || '-'}</div>
+              ${renderBullets(criteria.relevancy, 'Relevancy:')}
             </div>
             <div style="flex:1;min-width:180px;background:#fef9c3;border-radius:1rem;padding:1rem 1.2rem;box-shadow:0 1px 4px #fbbf241a;">
-              <div style="font-weight:600;color:#b45309;margin-bottom:0.3rem;">Completeness</div>
-              <div style="color:#a16207;">${criteria.completeness || '-'}</div>
+              ${renderBullets(criteria.completeness, 'Completeness:')}
             </div>
             <div style="flex:1;min-width:180px;background:#f3e8ff;border-radius:1rem;padding:1rem 1.2rem;box-shadow:0 1px 4px #a78bfa1a;">
-              <div style="font-weight:600;color:#7c3aed;margin-bottom:0.3rem;">Communication</div>
-              <div style="color:#6d28d9;">${criteria.communication || '-'}</div>
+              ${renderBullets(criteria.communication, 'Communication:')}
             </div>
           </div>`
 
@@ -454,16 +509,21 @@ class JobPrepApp {
           let improvementsBox = ''
           if (criteria.improvements) {
             improvementsBox = `<div style="margin-top:1.2rem;background:#fef2f2;border-radius:1rem;padding:1rem 1.2rem;box-shadow:0 1px 4px #f871711a;">
-              <div style="font-weight:600;color:#dc2626;margin-bottom:0.3rem;">Improvements</div>
-              <div style="color:#b91c1c;">${criteria.improvements}</div>
+              ${renderBullets(criteria.improvements, 'Improvements:')}
             </div>`
           }
 
           feedbackArea.innerHTML = scoreCircle + criteriaBoxes + improvementsBox
+          feedbackArea.style.color = '#000' // Ensure all feedback text is solid black
+          // After setting innerHTML, force all child elements to black
+          Array.from(feedbackArea.querySelectorAll('*')).forEach(el => {
+            el.style.color = '#000'
+          })
         }
       } catch (error) {
         if (feedbackArea) {
           feedbackArea.innerHTML = '<span style="color:#e53e3e">Error getting feedback.</span>'
+          feedbackArea.style.color = '#000'
         }
       }
     }

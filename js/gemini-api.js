@@ -103,14 +103,29 @@ Format: Return exactly 10 questions, numbered 1-10, one per line. The first 5 mu
         Job Context: ${jobContext}
 
         Provide a score from 1-10 and brief feedback on:
-        1. Relevancy to the question
-        2. Completeness of the answer
-        3. Professional communication
-        4. Specific improvements
+        1. Relevancy to the question (2-3 concise bullet points)
+        2. Completeness of the answer (2-3 concise bullet points)
+        3. Professional communication (2-3 concise bullet points)
+        4. Specific improvements (2-3 concise bullet points)
 
-        Format: 
+        Format:
         Score: X/10
-        Feedback: [Your detailed feedback]`
+        For each capability, use a bold subheading (e.g., **Relevancy:**) followed by 2-3 markdown dash bullets ("- "). Do NOT use asterisks for bullets. Do NOT write long paragraphs. Use only short, clear, and well-formatted bullet points for each.
+        Example:
+        Score: 8/10
+        **Relevancy:**
+        - Bullet 1
+        - Bullet 2
+        **Completeness:**
+        - Bullet 1
+        - Bullet 2
+        **Communication:**
+        - Bullet 1
+        - Bullet 2
+        **Improvements:**
+        - Bullet 1
+        - Bullet 2
+        `
 
     return await this.generateContent(prompt)
   }
