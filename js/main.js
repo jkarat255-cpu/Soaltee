@@ -607,21 +607,6 @@ function nextQuestion() {
   app.nextQuestion()
 }
 
-function generateResume() {
-  const ResumeBuilder = new ResumeBuilder()
-  ResumeBuilder.updatePreview()
-}
-
-function getResumeSuggestions() {
-  const ResumeBuilder = new ResumeBuilder()
-  ResumeBuilder.getSuggestions()
-}
-
-function downloadResume() {
-  const ResumeBuilder = new ResumeBuilder()
-  ResumeBuilder.generatePDF()
-}
-
 function searchJobs() {
   const query = document.getElementById("jobSearchQuery")?.value || ""
   const jobResults = document.getElementById("jobResults")
@@ -888,12 +873,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-// Initialize the application
-let app
-document.addEventListener("DOMContentLoaded", () => {
-  app = new JobPrepApp()
-})
-
+// Initialize the application at the top level
+const app = new JobPrepApp();
+window.resumeBuilder = app.resumeBuilder;
 window.selectRole = (...args) => app.selectRole(...args);
 window.showSection = (...args) => app.showSection(...args);
 window.startPracticeInterview = (...args) => app.startPracticeInterview(...args);
@@ -902,9 +884,6 @@ window.initializePracticeInterview = (...args) => app.initializePracticeIntervie
 window.initializeMockInterview = (...args) => app.initializeMockInterview(...args);
 window.toggleRecording = (...args) => app.toggleRecording(...args);
 window.nextQuestion = (...args) => app.nextQuestion(...args);
-window.generateResume = (...args) => app.generateResume(...args);
-window.getResumeSuggestions = (...args) => app.getResumeSuggestions(...args);
-window.downloadResume = (...args) => app.downloadResume(...args);
 window.searchJobs = (...args) => app.searchJobs(...args);
 window.viewJobDetails = (...args) => app.viewJobDetails(...args);
 window.applyForJob = (...args) => app.applyForJob(...args);
@@ -1178,3 +1157,13 @@ function showDsaFeedback() {
 }
 
 window.addEventListener("DOMContentLoaded", setupDsaModalListener)
+
+document.addEventListener('DOMContentLoaded', () => {
+  const dlBtn = document.querySelector('[data-resume-action="download"]');
+  if (dlBtn) dlBtn.onclick = () => {
+    const data = window.resumeBuilder.collectFormData();
+    const html = window.resumeBuilder.templates[window.resumeBuilder.currentTemplate](data);
+    localStorage.setItem('resumeHtml', html);
+    window.location.href = 'resume-download.html';
+  };
+});

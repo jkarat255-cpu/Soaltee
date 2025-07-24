@@ -7,6 +7,9 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection@0.0.3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.0.0"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.3/ace.js" integrity="sha512-+Qn6Qw6Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw1Qw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body class="bg-gray-50">
@@ -314,22 +317,21 @@
                             <input type="text" id="skills" class="w-full p-3 border rounded-lg" placeholder="Skill 1, Skill 2, Skill 3">
                         </div>
                         <div class="flex space-x-4">
-                            <button onclick="generateResume()" class="flex-1 bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-colors">
-                                Generate Resume
-                            </button>
-                            <button onclick="getResumeSuggestions()" class="flex-1 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors">
+                            <button data-resume-action="ai" class="flex-1 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors">
                                 Get AI Suggestions
                             </button>
                         </div>
+                        <div id="resumeSuggestions" class="mt-4 text-sm text-blue-700"></div>
                     </div>
                     <div>
                         <h3 class="font-semibold mb-4">Resume Preview</h3>
                         <div id="resumePreview" class="border-2 border-gray-200 rounded-lg p-4 min-h-[600px] bg-white">
                             <p class="text-gray-500 text-center mt-20">Resume preview will appear here</p>
                         </div>
-                        <button id="downloadResumeBtn" onclick="downloadResume()" class="w-full mt-4 bg-purple-500 text-white py-3 rounded-lg hover:bg-purple-600 transition-colors" disabled>
+                        <button id="downloadResumeBtn" data-resume-action="download" class="w-full mt-4 bg-purple-500 text-white py-3 rounded-lg hover:bg-purple-600 transition-colors" disabled>
                             Download PDF
                         </button>
+                        <a id="resumeDownloadLink" href="#" style="display:none" target="_blank">Download Resume PDF</a>
                     </div>
                 </div>
             </div>
@@ -462,12 +464,10 @@
     </div>
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection@0.0.3"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.0.0"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
+    <script src="https://unpkg.com/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
     <script type="module" src="js/main.js"></script>
     <script type="module" src="js/nav-auth.js"></script>
 </body>

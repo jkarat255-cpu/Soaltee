@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Download Resume as PDF</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    .resume-template {
+      font-family: "Times New Roman", serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    .resume-template h1 {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: center;
+      border-bottom: 2px solid #333;
+      padding-bottom: 5px;
+    }
+    .resume-template h2 {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      color: #2563eb;
+      border-bottom: 1px solid #2563eb;
+    }
+    .resume-template .contact-info {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .resume-template .section {
+      margin-bottom: 20px;
+    }
+    .resume-template ul {
+      margin-left: 20px;
+    }
+    .resume-template li {
+      margin-bottom: 5px;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection@0.0.3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.0.0"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+  <div class="container mx-auto p-6 flex-1 flex flex-col items-center justify-center">
+    <h2 class="text-2xl font-bold text-center my-6">Your Resume Preview</h2>
+    <div id="resumePreview" class="mb-8"></div>
+    <button id="downloadPdfBtn" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors">Download as PDF</button>
+    <div class="mt-8 text-center">
+      <a href="index.html" class="text-blue-600 hover:underline">Back to Main Page</a>
+    </div>
+  </div>
+  <script>
+    // Load resume HTML from localStorage
+    const html = localStorage.getItem('resumeHtml');
+    if (html) {
+      document.getElementById('resumePreview').innerHTML = html;
+    } else {
+      document.getElementById('resumePreview').innerHTML = '<div class="text-red-600">No resume data found. Please generate your resume first.</div>';
+      document.getElementById('downloadPdfBtn').style.display = 'none';
+    }
+    document.getElementById('downloadPdfBtn').onclick = async function() {
+      const preview = document.getElementById('resumePreview');
+      if (!preview) return;
+      // Use html2canvas to capture the resume
+      const canvas = await html2canvas(preview, { scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      // Calculate image dimensions to fit A4
+      const imgWidth = pageWidth - 40;
+      const imgHeight = canvas.height * imgWidth / canvas.width;
+      pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
+      pdf.save('Resume.pdf');
+    };
+  </script>
+</body>
+</html> 

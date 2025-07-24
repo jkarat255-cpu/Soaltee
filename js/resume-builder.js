@@ -79,6 +79,7 @@ export class ResumeBuilder {
 
   updatePreview() {
     const data = this.collectFormData()
+    console.log('[ResumeBuilder] updatePreview called with:', data)
     this.currentResumeData = data
 
     const preview = document.getElementById("resumePreview")
