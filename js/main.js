@@ -529,23 +529,57 @@ class JobPrepApp {
   }
 
   // Job Management Functions
-  loadJobListings() {
+  async loadJobListings() {
     const jobResults = document.getElementById("jobResults")
     if (jobResults) {
-      const jobs = this.jobManager.searchJobs("")
+      const jobs = await this.jobManager.loadJobs();
       jobResults.innerHTML = jobs.map((job) => this.jobManager.renderJobCard(job, false)).join("")
     }
   }
 
-  loadPostedJobs() {
+  async loadPostedJobs() {
     const postedJobs = document.getElementById("postedJobs")
     if (postedJobs) {
-      const jobs = this.jobManager.jobs
+      const jobs = await this.jobManager.loadJobs();
       if (jobs.length === 0) {
         postedJobs.innerHTML = '<p class="text-gray-500 text-center py-8">No jobs posted yet.</p>'
       } else {
         postedJobs.innerHTML = jobs.map((job) => this.jobManager.renderJobCard(job, true)).join("")
       }
+    }
+  }
+
+  // Add postNewJob as a class method
+  async postNewJob() {
+    const jobData = {
+      title: document.getElementById("jobTitle")?.value,
+      company: document.getElementById("companyName")?.value,
+      location: document.getElementById("jobLocation")?.value,
+      type: document.getElementById("jobType")?.value,
+      salary: document.getElementById("salaryRange")?.value,
+      description: document.getElementById("jobDescriptionPost")?.value,
+      requirements: document.getElementById("jobRequirements")?.value,
+    }
+
+    if (!jobData.title || !jobData.company || !jobData.description) {
+      alert("Please fill in all required fields.")
+      return
+    }
+
+    try {
+      await this.jobManager.postJob(jobData)
+      alert("Job posted successfully!")
+
+      // Clear form
+      Object.keys(jobData).forEach((key) => {
+        const element = document.getElementById(key === "description" ? "jobDescriptionPost" : key)
+        if (element) element.value = ""
+      })
+
+      // Refresh job listings
+      await this.loadPostedJobs()
+    } catch (error) {
+      alert("Error posting job. Please try again.")
     }
   }
 
@@ -607,12 +641,19 @@ function nextQuestion() {
   app.nextQuestion()
 }
 
-function searchJobs() {
+async function searchJobs() {
   const query = document.getElementById("jobSearchQuery")?.value || ""
   const jobResults = document.getElementById("jobResults")
   if (jobResults) {
-    const jobs = this.jobManager.searchJobs(query)
-    jobResults.innerHTML = jobs.map((job) => this.jobManager.renderJobCard(job, false)).join("")
+    const jobs = await window.app.jobManager.loadJobs();
+    const filtered = query.trim() ? jobs.filter(
+      (job) =>
+        job.title.toLowerCase().includes(query.toLowerCase()) ||
+        job.company.toLowerCase().includes(query.toLowerCase()) ||
+        job.location.toLowerCase().includes(query.toLowerCase()) ||
+        job.description.toLowerCase().includes(query.toLowerCase())
+    ) : jobs;
+    jobResults.innerHTML = filtered.map((job) => window.app.jobManager.renderJobCard(job, false)).join("")
   }
 }
 
@@ -625,13 +666,13 @@ function viewJobDetails(jobId) {
   }
 }
 
-function applyForJob(jobId) {
+async function applyForJob(jobId) {
   const name = prompt("Enter your name:")
   const coverLetter = prompt("Enter a brief cover letter (optional):")
 
   if (name) {
     try {
-      this.jobManager.applyForJob(jobId, { name, coverLetter })
+      await window.app.jobManager.applyForJob(jobId, { name, coverLetter })
       alert("Application submitted successfully!")
     } catch (error) {
       alert("Error submitting application. Please try again.")
@@ -639,7 +680,7 @@ function applyForJob(jobId) {
   }
 }
 
-function postNewJob() {
+async function postNewJob() {
   const jobData = {
     title: document.getElementById("jobTitle")?.value,
     company: document.getElementById("companyName")?.value,
@@ -656,7 +697,7 @@ function postNewJob() {
   }
 
   try {
-    this.jobManager.postJob(jobData)
+    await window.app.postNewJob()
     alert("Job posted successfully!")
 
     // Clear form
@@ -666,8 +707,7 @@ function postNewJob() {
     })
 
     // Refresh job listings
-    const app = new JobPrepApp()
-    app.loadPostedJobs()
+    await window.app.loadPostedJobs()
   } catch (error) {
     alert("Error posting job. Please try again.")
   }
