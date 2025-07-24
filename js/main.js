@@ -85,6 +85,16 @@ class JobPrepApp {
   }
 
   showSection(sectionId) {
+    // Restrict access to interview and resume builder for job seekers only
+    const userRole = localStorage.getItem('userRole');
+    const protectedSections = ['interviewPractice', 'resumeBuilder'];
+    if (protectedSections.includes(sectionId) && userRole !== 'seeker') {
+      if (typeof showLoginModal === 'function') {
+        // Show the section, but immediately show the login modal overlay
+        setTimeout(() => showLoginModal(), 0);
+      }
+      // Do not return here; allow section to render
+    }
     // Hide all sections
     const sections = [
       "roleSelection",
@@ -100,33 +110,29 @@ class JobPrepApp {
       "postJob",
       "manageJobs",
       "candidates",
-    ]
-
+    ];
     sections.forEach((id) => {
-      const element = document.getElementById(id)
+      const element = document.getElementById(id);
       if (element) {
-        element.classList.add("hidden")
+        element.classList.add("hidden");
       }
-    })
-
+    });
     // Show selected section
-    const targetSection = document.getElementById(sectionId)
+    const targetSection = document.getElementById(sectionId);
     if (targetSection) {
-      targetSection.classList.remove("hidden")
-      targetSection.classList.add("fade-in")
+      targetSection.classList.remove("hidden");
+      targetSection.classList.add("fade-in");
     }
-
-    this.currentSection = sectionId
-
+    this.currentSection = sectionId;
     // Initialize section-specific functionality
     if (sectionId === "resumeBuilder") {
-      this.resumeBuilder.updatePreview()
+      this.resumeBuilder.updatePreview();
     } else if (sectionId === "jobSearch") {
-      this.loadJobListings()
+      this.loadJobListings();
     } else if (sectionId === "manageJobs") {
-      this.loadPostedJobs()
+      this.loadPostedJobs();
     } else if (sectionId === "candidates") {
-      this.loadCandidates()
+      this.loadCandidates();
     }
   }
 
@@ -750,6 +756,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const manageJobsBtn = document.querySelector('[onclick*="showSection(\'manageJobs\')"]');
     // Seeker-only feature
     const jobSearchBtn = document.querySelector('[onclick*="showSection(\'jobSearch\')"]');
+    // Interview and Resume Builder (seeker-only)
+    const interviewPracticeBtn = document.querySelector('[onclick*="showSection(\'interviewPractice\')"]');
+    const resumeBuilderBtn = document.querySelector('[onclick*="showSection(\'resumeBuilder\')"]');
     // Main content container
     const mainContainer = document.querySelector('.container.mx-auto');
     // Navbar role buttons
@@ -811,6 +820,26 @@ document.addEventListener('DOMContentLoaded', function () {
     if (jobSearchBtn) {
         jobSearchBtn.style.display = '';
         jobSearchBtn.addEventListener('click', function (e) {
+            if (userRole !== 'seeker') {
+                e.preventDefault();
+                showLoginModal();
+            } else {
+                hideLoginModal();
+            }
+        });
+    }
+    if (interviewPracticeBtn) {
+        interviewPracticeBtn.addEventListener('click', function (e) {
+            if (userRole !== 'seeker') {
+                e.preventDefault();
+                showLoginModal();
+            } else {
+                hideLoginModal();
+            }
+        });
+    }
+    if (resumeBuilderBtn) {
+        resumeBuilderBtn.addEventListener('click', function (e) {
             if (userRole !== 'seeker') {
                 e.preventDefault();
                 showLoginModal();
