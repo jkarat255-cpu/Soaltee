@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mock Interview - JobPrep Pro</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="styles/main.css" rel="stylesheet">
+  <style>
+    body {
+      background: var(--bg-main);
+      color: var(--text-main);
+      font-family: var(--font-main);
+    }
+    .split-container {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+    }
+    .split-half {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      box-sizing: border-box;
+      background: var(--bg-card);
+      border-right: 2px solid var(--border-main);
+    }
+    .split-half:last-child {
+      border-right: none;
+    }
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 16px #0006;
+    }
+    .question-box {
+      background: var(--bg-accent);
+      color: var(--text-main);
+      border-radius: 1rem;
+      padding: 2rem;
+      font-size: 1.3rem;
+      box-shadow: var(--shadow-main);
+      margin-bottom: 2rem;
+      min-width: 300px;
+      text-align: center;
+    }
+    .webcam-box {
+      background: var(--bg-accent);
+      border-radius: 1rem;
+      box-shadow: var(--shadow-main);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .confidence-indicator {
+      margin-top: 1rem;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="split-container">
+    <!-- Left: AI Avatar and Question -->
+    <div class="split-half" id="ai-half">
+      <div id="avatar" style="width:320px;height:340px;margin-bottom:2rem;border: 4px solid #bfae9c; border-radius: 1.2rem; box-shadow: 0 4px 24px #0006; background: #23201a; display: flex; align-items: flex-end; justify-content: center; overflow: hidden;"></div>
+      <div class="question-box" id="aiQuestion">
+        Loading question...
+      </div>
+      <button id="playTTSBtn" class="mt-2 px-4 py-2 rounded-lg" style="background:var(--accent-blue);color:var(--bg-card);font-weight:600;">🔊 Play Question</button>
+    </div>
+    <!-- Right: User Webcam and Confidence -->
+    <div class="split-half" id="user-half">
+      <div class="webcam-box">
+        <video id="userWebcam" width="320" height="240" autoplay muted style="border-radius:0.7rem;background:#111;"></video>
+        <div class="confidence-indicator" id="confidenceIndicator">Confidence: --</div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
+  <script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js/+esm",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+    "talkinghead": "https://cdn.jsdelivr.net/gh/met4citizen/TalkingHead@1.5/modules/talkinghead.mjs"
+  }
+}
+</script>
+  <script type="module" src="js/ai-avatar.js"></script>
+  <script type="module" src="js/mock-interview.js"></script>
+</body>
+</html> 

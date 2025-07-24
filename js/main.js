@@ -142,7 +142,7 @@ class JobPrepApp {
   }
 
   startMockInterview() {
-    this.showSection("mockSetup")
+    window.location.href = 'mock-interview.html';
   }
 
   async initializePracticeInterview() {
@@ -202,61 +202,7 @@ class JobPrepApp {
   }
 
   async initializeMockInterview() {
-    const resumeFile = document.getElementById("resumeFile")?.files[0]
-    const jobDescription = document.getElementById("jobDescription")?.value
-    const isTechnical = document.querySelector('input[name="mockIsTechnical"]:checked')?.value === "yes"
-
-    if (!jobDescription.trim()) {
-      alert("Please provide a job description.")
-      return
-    }
-
-    try {
-      showLoading(true)
-      let resumeText = ""
-      if (resumeFile) {
-        // Extract resume text if provided
-        resumeText = await this.pdfUtils.extractTextFromPDF(resumeFile)
-      }
-      // Generate all 10 questions at once
-      let questionsText
-      if (resumeText) {
-        questionsText = await this.geminiAPI.generateMockInterviewQuestions(resumeText, jobDescription, isTechnical)
-      } else {
-        // If no resume, use only job description
-        questionsText = await this.geminiAPI.generateInterviewQuestions(jobDescription, isTechnical, 10)
-      }
-      const questions = questionsText
-        .split("\n")
-        .filter((q) => q.trim())
-        .map((q) => q.replace(/^\d+\.\s*/, "").trim())
-        .slice(0, 10)
-
-      // Reset interview state
-      this.interviewState = {
-        questions: questions,
-        currentQuestionIndex: 0,
-        answers: [],
-        isRecording: false,
-        isTechnical: isTechnical,
-        confidenceScores: [],
-        resumeText: resumeText,
-        jobDescription: jobDescription,
-        isMockInterview: true,
-      }
-
-      // Initialize camera and start interview
-      await this.setupCamera()
-      this.showSection("interviewInterface")
-      this.confidenceAnalyzer.startAnalysis()
-      this.startConfidenceMonitoring()
-      this.displayCurrentQuestion()
-    } catch (error) {
-      console.error("Error initializing mock interview:", error)
-      alert("Error starting mock interview. Please try again.")
-    } finally {
-      showLoading(false)
-    }
+    window.location.href = 'mock-interview.html';
   }
 
   async setupCamera() {

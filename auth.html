@@ -45,34 +45,41 @@
             border: 1px solid var(--border-main);
             font-family: var(--font-main);
         }
-        .login-card input:focus {
-            outline: 2px solid var(--accent-amber);
-            background: #3b2f23;
-        }
         .login-card button {
             background: var(--accent-blue);
             color: var(--bg-card);
             border-radius: 0.7rem;
             font-family: var(--font-main);
             box-shadow: 0 1px 4px #0003;
-            transition: background 0.2s, color 0.2s;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s, outline 0.2s;
+            outline: none;
         }
-        .login-card button:hover {
-            background: var(--accent-amber);
-            color: var(--bg-card);
+        .login-card button:hover, .login-card button:focus {
+            background: #ffd166;
+            color: #23201a;
+            box-shadow: 0 2px 8px #0005;
+            outline: 2px solid var(--accent-amber);
         }
         .tab-active {
             color: var(--accent-blue) !important;
-            border-bottom: 2px solid var(--accent-blue) !important;
-            background: transparent !important;
+            border-bottom: 2.5px solid var(--accent-blue) !important;
+            background: rgba(100,181,246,0.08) !important;
+            font-weight: 700;
+            text-shadow: 0 1px 2px #0002;
         }
         .tab-inactive {
             color: var(--text-muted) !important;
             border-bottom: 2px solid transparent !important;
             background: transparent !important;
+            opacity: 0.85;
+        }
+        .tab-active:focus, .tab-inactive:focus {
+            outline: 2px solid var(--accent-blue) !important;
+            box-shadow: 0 0 0 2px var(--accent-blue) !important;
         }
         .text-blue-700, .text-blue-600, .text-gray-500, .text-gray-400, .text-blue-500 {
-            color: var(--text-muted) !important;
+            color: var(--accent-blue) !important;
+            text-shadow: 0 1px 2px #0001;
         }
         .bg-white, .bg-blue-600, .bg-green-600, .bg-blue-700, .bg-green-700, .hover\:bg-blue-700, .hover\:bg-green-700 {
             background: none !important;
@@ -86,6 +93,11 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        .login-card input:focus {
+            outline: 2px solid var(--accent-amber);
+            background: #3b2f23;
+            box-shadow: 0 0 0 2px var(--accent-amber);
         }
     </style>
 </head>

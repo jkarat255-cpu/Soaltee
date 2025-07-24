@@ -5,7 +5,7 @@ export class ConfidenceAnalyzer {
   constructor() {
     this.faceModel = null
     this.poseModel = null
-    this.isAnalyzing = false
+    this.isAnalyzing = true
     this.confidenceScores = []
     this.currentScore = 0
   }
@@ -53,7 +53,9 @@ export class ConfidenceAnalyzer {
       return this.currentScore
     } catch (error) {
       console.error("Error analyzing frame:", error)
-      return this.currentScore
+      // Fallback: if error or no face detected, return neutral confidence
+      this.currentScore = 50;
+      return this.currentScore;
     }
   }
 

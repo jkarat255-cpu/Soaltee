@@ -21,18 +21,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Main tab switching
     seekerTab.addEventListener('click', function () {
-        seekerTab.classList.add('text-blue-600', 'border-blue-600');
-        seekerTab.classList.remove('text-gray-500', 'border-transparent');
-        employerTab.classList.remove('text-blue-600', 'border-blue-600');
-        employerTab.classList.add('text-gray-500', 'border-transparent');
+        seekerTab.classList.add('text-blue-600', 'border-blue-600', 'tab-active');
+        seekerTab.classList.remove('text-gray-500', 'border-transparent', 'tab-inactive');
+        employerTab.classList.remove('text-blue-600', 'border-blue-600', 'tab-active');
+        employerTab.classList.add('text-gray-500', 'border-transparent', 'tab-inactive');
         seekerForms.classList.remove('hidden');
         employerForms.classList.add('hidden');
     });
     employerTab.addEventListener('click', function () {
-        employerTab.classList.add('text-blue-600', 'border-blue-600');
-        employerTab.classList.remove('text-gray-500', 'border-transparent');
-        seekerTab.classList.remove('text-blue-600', 'border-blue-600');
-        seekerTab.classList.add('text-gray-500', 'border-transparent');
+        employerTab.classList.add('text-blue-600', 'border-blue-600', 'tab-active');
+        employerTab.classList.remove('text-gray-500', 'border-transparent', 'tab-inactive');
+        seekerTab.classList.remove('text-blue-600', 'border-blue-600', 'tab-active');
+        seekerTab.classList.add('text-gray-500', 'border-transparent', 'tab-inactive');
         employerForms.classList.remove('hidden');
         seekerForms.classList.add('hidden');
     });
