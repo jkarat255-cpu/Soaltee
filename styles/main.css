@@ -1,3 +1,149 @@
+/* === Dark Brownish Modern Theme === */
+:root {
+  --bg-main: #23201a;
+  --bg-card: #2d261c;
+  --bg-accent: #3b2f23;
+  --text-main: #f5ede3;
+  --text-muted: #bfae9c;
+  --accent-amber: #ffb300;
+  --accent-orange: #ff7043;
+  --accent-green: #7cb342;
+  --accent-blue: #64b5f6;
+  --border-main: #4b3a2f;
+  --shadow-main: 0 2px 16px #0006;
+  --font-main: 'Inter', 'Poppins', 'Montserrat', Arial, sans-serif;
+}
+
+body {
+  background: var(--bg-main) !important;
+  color: var(--text-main) !important;
+  font-family: var(--font-main) !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--accent-amber);
+  font-family: var(--font-main);
+}
+
+.bg-white, .bg-gray-50, .bg-gray-100, .bg-blue-50, .bg-green-50, .bg-purple-50, .bg-yellow-50 {
+  background: var(--bg-card) !important;
+  color: var(--text-main) !important;
+}
+
+.text-gray-800, .text-gray-600, .text-gray-700, .text-blue-800, .text-green-800, .text-purple-800, .text-yellow-800 {
+  color: var(--text-main) !important;
+}
+
+.text-blue-500, .text-green-500, .text-purple-500, .text-yellow-600 {
+  color: var(--accent-blue) !important;
+}
+
+.text-green-600 {
+  color: var(--accent-green) !important;
+}
+
+.text-red-600, .text-red-500 {
+  color: var(--accent-orange) !important;
+}
+
+.text-blue-600 {
+  color: var(--accent-blue) !important;
+}
+
+.text-yellow-600 {
+  color: var(--accent-amber) !important;
+}
+
+.bg-blue-500, .bg-blue-600, .hover\:bg-blue-600, .hover\:bg-blue-700 {
+  background: var(--accent-blue) !important;
+  color: var(--bg-card) !important;
+}
+
+.bg-green-500, .bg-green-600, .hover\:bg-green-600, .hover\:bg-green-700 {
+  background: var(--accent-green) !important;
+  color: var(--bg-card) !important;
+}
+
+.bg-purple-500, .bg-purple-600, .hover\:bg-purple-600 {
+  background: #7c3aed !important;
+  color: var(--bg-card) !important;
+}
+
+.bg-yellow-50, .bg-yellow-500, .bg-yellow-600, .hover\:bg-yellow-600 {
+  background: var(--accent-amber) !important;
+  color: var(--bg-card) !important;
+}
+
+.bg-gray-500, .bg-gray-600, .hover\:bg-gray-600, .hover\:bg-gray-500, .bg-gray-400 {
+  background: var(--bg-accent) !important;
+  color: var(--text-main) !important;
+}
+
+.border, .border-blue-200, .border-green-200, .border-gray-200 {
+  border-color: var(--border-main) !important;
+}
+
+.rounded-lg, .rounded-xl {
+  border-radius: 1rem !important;
+}
+
+.shadow-lg, .shadow-xl {
+  box-shadow: var(--shadow-main) !important;
+}
+
+input, textarea, select {
+  background: var(--bg-accent) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-main) !important;
+  font-family: var(--font-main) !important;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: 2px solid var(--accent-amber) !important;
+  background: #3b2f23 !important;
+}
+
+button {
+  font-family: var(--font-main) !important;
+  border-radius: 0.7rem !important;
+  box-shadow: 0 1px 4px #0003;
+  transition: background 0.2s, color 0.2s;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+a {
+  color: var(--accent-blue);
+}
+
+/* Custom feedback/flexbox UI overrides */
+#practiceFeedback, #detailedFeedback, #dsaFeedback {
+  background: linear-gradient(120deg,#3b2f23 0%,#4b3a2f 100%) !important;
+  color: var(--text-main) !important;
+  box-shadow: var(--shadow-main) !important;
+}
+
+/* Nav and modal tweaks */
+nav, .bg-blue-600 {
+  background: #3b2f23 !important;
+  color: var(--accent-amber) !important;
+  box-shadow: var(--shadow-main) !important;
+}
+
+#loadingOverlay, #dsaModal {
+  background: rgba(35,32,26,0.95) !important;
+}
+
+/* Resume preview border */
+#resumePreview {
+  background: var(--bg-main) !important;
+  border: 2px solid var(--border-main) !important;
+  color: var(--text-main) !important;
+}
+
 /* Custom styles for the application */
 .confidence-high {
   background-color: #10b981 !important;

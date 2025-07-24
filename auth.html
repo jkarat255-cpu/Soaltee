@@ -6,19 +6,94 @@
     <title>Login / Sign Up - JobPrep Pro</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-main: #23201a;
+            --bg-card: #2d261c;
+            --bg-accent: #3b2f23;
+            --text-main: #f5ede3;
+            --text-muted: #bfae9c;
+            --accent-amber: #ffb300;
+            --accent-orange: #ff7043;
+            --accent-green: #7cb342;
+            --accent-blue: #64b5f6;
+            --border-main: #4b3a2f;
+            --shadow-main: 0 2px 16px #0006;
+            --font-main: 'Inter', Arial, sans-serif;
+        }
+        body {
+            background: var(--bg-main) !important;
+            color: var(--text-main) !important;
+            font-family: var(--font-main) !important;
+        }
+        .login-card {
+            background: #2d261c;
+            color: var(--text-main);
+            border-radius: 1.5rem;
+            box-shadow: var(--shadow-main);
+            padding: 2.5rem;
+            max-width: 420px;
+            margin: 0 auto;
+        }
+        .login-card h2 {
+            color: var(--accent-amber);
+        }
+        .login-card input, .login-card select {
+            background: var(--bg-accent);
+            color: var(--text-main);
+            border: 1px solid var(--border-main);
+            font-family: var(--font-main);
+        }
+        .login-card input:focus {
+            outline: 2px solid var(--accent-amber);
+            background: #3b2f23;
+        }
+        .login-card button {
+            background: var(--accent-blue);
+            color: var(--bg-card);
+            border-radius: 0.7rem;
+            font-family: var(--font-main);
+            box-shadow: 0 1px 4px #0003;
+            transition: background 0.2s, color 0.2s;
+        }
+        .login-card button:hover {
+            background: var(--accent-amber);
+            color: var(--bg-card);
+        }
         .tab-active {
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(59,130,246,0.15);
+            color: var(--accent-blue) !important;
+            border-bottom: 2px solid var(--accent-blue) !important;
+            background: transparent !important;
         }
         .tab-inactive {
-            transition: all 0.3s;
+            color: var(--text-muted) !important;
+            border-bottom: 2px solid transparent !important;
+            background: transparent !important;
+        }
+        .text-blue-700, .text-blue-600, .text-gray-500, .text-gray-400, .text-blue-500 {
+            color: var(--text-muted) !important;
+        }
+        .bg-white, .bg-blue-600, .bg-green-600, .bg-blue-700, .bg-green-700, .hover\:bg-blue-700, .hover\:bg-green-700 {
+            background: none !important;
+        }
+        .border-gray-200 {
+            border-color: var(--border-main) !important;
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 via-purple-300 to-pink-200">
-    <button onclick="window.location.href='index.html'" class="absolute top-6 left-6 bg-white text-blue-600 px-4 py-2 rounded shadow hover:bg-blue-50 flex items-center"><i class="fas fa-arrow-left mr-2"></i>Back</button>
-    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md relative animate-fade-in">
+<body class="min-h-screen flex items-center justify-center" style="background:var(--bg-main);color:var(--text-main);font-family:'Inter',Arial,sans-serif;">
+    <button onclick="window.location.href='index.html'" class="absolute top-6 left-6 login-card px-4 py-2 flex items-center" style="background:var(--bg-accent);color:var(--accent-blue);border-radius:0.7rem;box-shadow:0 1px 4px #0003;">
+        <i class="fas fa-arrow-left mr-2"></i>Back
+    </button>
+    <div class="login-card relative animate-fade-in">
         <div class="flex flex-col items-center mb-6">
             <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="JobPrep Pro Logo" class="w-20 h-20 mb-2 drop-shadow-lg">
             <h2 class="text-2xl font-bold text-blue-700 mb-1">Welcome to JobPrep Pro</h2>
