@@ -190,6 +190,12 @@ class JobPrepApp {
       // Initialize camera and start interview
       await this.setupCamera()
       this.showSection("interviewInterface")
+      // Ensure TensorFlow models are loaded before starting analysis
+      const tfOk = await this.confidenceAnalyzer.initialize()
+      if (!tfOk) {
+        alert("Error loading TensorFlow models for confidence analysis. Please check your internet connection and reload the page.")
+        return
+      }
       this.confidenceAnalyzer.startAnalysis()
       this.startConfidenceMonitoring()
       this.displayCurrentQuestion()
@@ -409,7 +415,7 @@ class JobPrepApp {
         }
       } catch (error) {
         if (feedbackArea) {
-          feedbackArea.innerHTML = '<span style="color:#e53e3e">Error getting feedback.</span>'
+          feedbackArea.innerHTML = `<span style='color:#e53e3e'>Gemini API Error:<br>${error && error.stack ? error.stack : error.message || error}</span>`
         }
       }
     }
@@ -470,7 +476,12 @@ class JobPrepApp {
         resultsDiv.appendChild(dsaBtn)
       }
     } catch (error) {
-      alert('Error generating feedback. Please try again.')
+      const feedbackArea = document.getElementById("detailedFeedback")
+      if (feedbackArea) {
+        feedbackArea.innerHTML = `<span style='color:#e53e3e'>Gemini API Error:<br>${error && error.stack ? error.stack : error.message || error}</span>`
+      } else {
+        alert('Gemini API Error: ' + (error && error.stack ? error.stack : error.message || error))
+      }
     } finally {
       showLoading(false)
     }
@@ -502,8 +513,12 @@ class JobPrepApp {
       this.displayInterviewResults(feedback)
       this.showSection("interviewResults")
     } catch (error) {
-      console.error("Error completing interview:", error)
-      alert("Error generating feedback. Please try again.")
+      const feedbackArea = document.getElementById("detailedFeedback")
+      if (feedbackArea) {
+        feedbackArea.innerHTML = `<span style='color:#e53e3e'>Gemini API Error:<br>${error && error.stack ? error.stack : error.message || error}</span>`
+      } else {
+        alert('Gemini API Error: ' + (error && error.stack ? error.stack : error.message || error))
+      }
     } finally {
       showLoading(false)
     }
