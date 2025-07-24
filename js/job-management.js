@@ -1,17 +1,29 @@
 // Job management for both seekers and employers
+import { supabase } from './supabase-auth.js';
+
 export class JobManager {
   constructor() {
-    this.jobs = this.loadJobs()
+    // jobs will be loaded asynchronously
+    this.jobs = [];
     this.applications = this.loadApplications()
   }
 
-  loadJobs() {
-    const stored = localStorage.getItem("jobListings")
-    return stored ? JSON.parse(stored) : this.getDefaultJobs()
+  // Fetch all jobs from Supabase
+  async loadJobs() {
+    const { data, error } = await supabase
+      .from('job')
+      .select('*')
+      .order('id', { ascending: false });
+    if (error) {
+      console.error('Error loading jobs:', error);
+      return [];
+    }
+    this.jobs = data;
+    return data;
   }
 
   saveJobs() {
-    localStorage.setItem("jobListings", JSON.stringify(this.jobs))
+    // This method is no longer needed as jobs are fetched from Supabase
   }
 
   loadApplications() {
@@ -70,58 +82,70 @@ export class JobManager {
     ]
   }
 
-  postJob(jobData) {
-    const newJob = {
-      id: Date.now().toString(),
-      ...jobData,
-      postedDate: new Date().toISOString(),
-      applications: [],
+  // Post a new job to Supabase (for employer)
+  async postJob(jobData) {
+    const { data, error } = await supabase
+      .from('job')
+      .insert([jobData])
+      .select()
+      .single();
+    if (error) {
+      alert('Error posting job: ' + error.message);
+      return null;
     }
-
-    this.jobs.unshift(newJob)
-    this.saveJobs()
-    return newJob
+    // Optionally update local jobs list
+    this.jobs.unshift(data);
+    return data;
   }
 
+  // Search jobs (client-side filter after loading)
   searchJobs(query) {
     if (!query.trim()) {
-      return this.jobs
+      return this.jobs;
     }
-
-    const searchTerm = query.toLowerCase()
+    const searchTerm = query.toLowerCase();
     return this.jobs.filter(
       (job) =>
         job.title.toLowerCase().includes(searchTerm) ||
         job.company.toLowerCase().includes(searchTerm) ||
         job.location.toLowerCase().includes(searchTerm) ||
-        job.description.toLowerCase().includes(searchTerm),
-    )
+        job.description.toLowerCase().includes(searchTerm)
+    );
   }
 
-  applyForJob(jobId, applicationData) {
-    const job = this.jobs.find((j) => j.id === jobId)
-    if (!job) {
-      throw new Error("Job not found")
+  // Apply for a job as a job seeker (store application in Supabase)
+  async applyForJob(jobId, applicationData) {
+    const { data, error } = await supabase
+      .from('applications')
+      .insert([
+        {
+          job_id: jobId,
+          applicant_name: applicationData.name || 'Anonymous',
+          cover_letter: applicationData.coverLetter || '',
+          status: 'pending',
+          // Add more fields as needed
+        },
+      ])
+      .select()
+      .single();
+    if (error) {
+      alert('Error applying for job: ' + error.message);
+      return null;
     }
+    return data;
+  }
 
-    const application = {
-      id: Date.now().toString(),
-      jobId: jobId,
-      jobTitle: job.title,
-      company: job.company,
-      applicantName: applicationData.name || "Anonymous",
-      appliedDate: new Date().toISOString(),
-      status: "pending",
-      ...applicationData,
+  // Fetch all jobs for job seekers (from Supabase)
+  async getJobsForSeeker() {
+    const { data, error } = await supabase
+      .from('job')
+      .select('*')
+      .order('id', { ascending: false });
+    if (error) {
+      console.error('Error loading jobs for seeker:', error);
+      return [];
     }
-
-    job.applications.push(application)
-    this.applications.push(application)
-
-    this.saveJobs()
-    this.saveApplications()
-
-    return application
+    return data;
   }
 
   getJobApplications(jobId) {
@@ -259,4 +283,4 @@ export class JobManager {
 }
 
 // Global instance
-const jobManager = new JobManager()
+const jobManager = new JobManager();

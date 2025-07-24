@@ -410,7 +410,56 @@ class JobPrepApp {
         const jobContext = this.interviewState.jobTitle
         const feedback = await this.geminiAPI.evaluateAnswer(currentQuestion, finalTranscript, jobContext)
         if (feedbackArea) {
-          feedbackArea.innerHTML = `<div class="prose max-w-none">${feedback.replace(/\n/g, "<br>")}</div>`
+          // Parse score and feedback by criteria
+          let scoreMatch = feedback.match(/Score:\s*(\d{1,2})\/10/i)
+          let score = scoreMatch ? parseInt(scoreMatch[1]) : null
+          let criteria = { relevancy: '', completeness: '', communication: '', improvements: '' }
+          let lines = feedback.split(/\n|<br>/)
+          let current = ''
+          for (let line of lines) {
+            if (/relevancy/i.test(line)) current = 'relevancy'
+            else if (/completeness/i.test(line)) current = 'completeness'
+            else if (/professional communication|communication/i.test(line)) current = 'communication'
+            else if (/improvement/i.test(line)) current = 'improvements'
+            else if (current) criteria[current] += (criteria[current] ? ' ' : '') + line.trim()
+          }
+          // Fallback: if not parsed, put all in improvements
+          if (!criteria.relevancy && !criteria.completeness && !criteria.communication) criteria.improvements = feedback
+
+          // Score circle
+          let scoreCircle = `<div style="display:flex;justify-content:center;align-items:center;margin-bottom:1rem;">
+            <div style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#4f8cff,#6ee7b7,#fbbf24);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 2px 8px #0001;">
+              <span style="font-size:2rem;font-weight:bold;color:#222;">${score !== null ? score : '?'}</span>
+              <span style="font-size:0.9rem;color:#555;">/10</span>
+            </div>
+          </div>`
+
+          // Criteria flexboxes
+          let criteriaBoxes = `<div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+            <div style="flex:1;min-width:180px;background:#e0f2fe;border-radius:1rem;padding:1rem 1.2rem;box-shadow:0 1px 4px #38bdf81a;">
+              <div style="font-weight:600;color:#0284c7;margin-bottom:0.3rem;">Relevancy</div>
+              <div style="color:#0369a1;">${criteria.relevancy || '-'}</div>
+            </div>
+            <div style="flex:1;min-width:180px;background:#fef9c3;border-radius:1rem;padding:1rem 1.2rem;box-shadow:0 1px 4px #fbbf241a;">
+              <div style="font-weight:600;color:#b45309;margin-bottom:0.3rem;">Completeness</div>
+              <div style="color:#a16207;">${criteria.completeness || '-'}</div>
+            </div>
+            <div style="flex:1;min-width:180px;background:#f3e8ff;border-radius:1rem;padding:1rem 1.2rem;box-shadow:0 1px 4px #a78bfa1a;">
+              <div style="font-weight:600;color:#7c3aed;margin-bottom:0.3rem;">Communication</div>
+              <div style="color:#6d28d9;">${criteria.communication || '-'}</div>
+            </div>
+          </div>`
+
+          // Improvements box
+          let improvementsBox = ''
+          if (criteria.improvements) {
+            improvementsBox = `<div style="margin-top:1.2rem;background:#fef2f2;border-radius:1rem;padding:1rem 1.2rem;box-shadow:0 1px 4px #f871711a;">
+              <div style="font-weight:600;color:#dc2626;margin-bottom:0.3rem;">Improvements</div>
+              <div style="color:#b91c1c;">${criteria.improvements}</div>
+            </div>`
+          }
+
+          feedbackArea.innerHTML = scoreCircle + criteriaBoxes + improvementsBox
         }
       } catch (error) {
         if (feedbackArea) {
@@ -529,23 +578,57 @@ class JobPrepApp {
   }
 
   // Job Management Functions
-  loadJobListings() {
+  async loadJobListings() {
     const jobResults = document.getElementById("jobResults")
     if (jobResults) {
-      const jobs = this.jobManager.searchJobs("")
+      const jobs = await this.jobManager.loadJobs();
       jobResults.innerHTML = jobs.map((job) => this.jobManager.renderJobCard(job, false)).join("")
     }
   }
 
-  loadPostedJobs() {
+  async loadPostedJobs() {
     const postedJobs = document.getElementById("postedJobs")
     if (postedJobs) {
-      const jobs = this.jobManager.jobs
+      const jobs = await this.jobManager.loadJobs();
       if (jobs.length === 0) {
         postedJobs.innerHTML = '<p class="text-gray-500 text-center py-8">No jobs posted yet.</p>'
       } else {
         postedJobs.innerHTML = jobs.map((job) => this.jobManager.renderJobCard(job, true)).join("")
       }
+    }
+  }
+
+  // Add postNewJob as a class method
+  async postNewJob() {
+    const jobData = {
+      title: document.getElementById("jobTitle")?.value,
+      company: document.getElementById("companyName")?.value,
+      location: document.getElementById("jobLocation")?.value,
+      type: document.getElementById("jobType")?.value,
+      salary: document.getElementById("salaryRange")?.value,
+      description: document.getElementById("jobDescriptionPost")?.value,
+      requirements: document.getElementById("jobRequirements")?.value,
+    }
+
+    if (!jobData.title || !jobData.company || !jobData.description) {
+      alert("Please fill in all required fields.")
+      return
+    }
+
+    try {
+      await this.jobManager.postJob(jobData)
+      alert("Job posted successfully!")
+
+      // Clear form
+      Object.keys(jobData).forEach((key) => {
+        const element = document.getElementById(key === "description" ? "jobDescriptionPost" : key)
+        if (element) element.value = ""
+      })
+
+      // Refresh job listings
+      await this.loadPostedJobs()
+    } catch (error) {
+      alert("Error posting job. Please try again.")
     }
   }
 
@@ -607,12 +690,19 @@ function nextQuestion() {
   app.nextQuestion()
 }
 
-function searchJobs() {
+async function searchJobs() {
   const query = document.getElementById("jobSearchQuery")?.value || ""
   const jobResults = document.getElementById("jobResults")
   if (jobResults) {
-    const jobs = this.jobManager.searchJobs(query)
-    jobResults.innerHTML = jobs.map((job) => this.jobManager.renderJobCard(job, false)).join("")
+    const jobs = await window.app.jobManager.loadJobs();
+    const filtered = query.trim() ? jobs.filter(
+      (job) =>
+        job.title.toLowerCase().includes(query.toLowerCase()) ||
+        job.company.toLowerCase().includes(query.toLowerCase()) ||
+        job.location.toLowerCase().includes(query.toLowerCase()) ||
+        job.description.toLowerCase().includes(query.toLowerCase())
+    ) : jobs;
+    jobResults.innerHTML = filtered.map((job) => window.app.jobManager.renderJobCard(job, false)).join("")
   }
 }
 
@@ -625,13 +715,13 @@ function viewJobDetails(jobId) {
   }
 }
 
-function applyForJob(jobId) {
+async function applyForJob(jobId) {
   const name = prompt("Enter your name:")
   const coverLetter = prompt("Enter a brief cover letter (optional):")
 
   if (name) {
     try {
-      this.jobManager.applyForJob(jobId, { name, coverLetter })
+      await window.app.jobManager.applyForJob(jobId, { name, coverLetter })
       alert("Application submitted successfully!")
     } catch (error) {
       alert("Error submitting application. Please try again.")
@@ -639,7 +729,7 @@ function applyForJob(jobId) {
   }
 }
 
-function postNewJob() {
+async function postNewJob() {
   const jobData = {
     title: document.getElementById("jobTitle")?.value,
     company: document.getElementById("companyName")?.value,
@@ -656,7 +746,7 @@ function postNewJob() {
   }
 
   try {
-    this.jobManager.postJob(jobData)
+    await window.app.postNewJob()
     alert("Job posted successfully!")
 
     // Clear form
@@ -666,8 +756,7 @@ function postNewJob() {
     })
 
     // Refresh job listings
-    const app = new JobPrepApp()
-    app.loadPostedJobs()
+    await window.app.loadPostedJobs()
   } catch (error) {
     alert("Error posting job. Please try again.")
   }
