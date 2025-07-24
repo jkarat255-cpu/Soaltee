@@ -486,13 +486,47 @@ class JobPrepApp {
       this.displayCurrentQuestion()
       this.confidenceAnalyzer.reset() // Reset confidence tracking for new question
     } else {
-      // Check if technical role, then redirect to DSA, else finish interview
+      // Check if technical role, then show Q&A feedback/hireability, then redirect to DSA, else finish interview
       const isTechnicalRole = localStorage.getItem("isTechnicalRole") === "true"
       if (isTechnicalRole) {
-        window.location.href = "dsa.html"
+        // Show Q&A feedback/hireability modal/section
+        await this.showQnAFeedbackBeforeDSA()
       } else {
         await this.completeInterview()
       }
+    }
+  }
+
+  async showQnAFeedbackBeforeDSA() {
+    // Generate Q&A feedback (without DSA)
+    try {
+      showLoading(true)
+      const jobContext = this.interviewState.jobTitle
+      const feedback = await this.geminiAPI.generateComprehensiveFeedback(
+        this.interviewState.answers,
+        this.interviewState.confidenceScores,
+        jobContext,
+        this.interviewState.isTechnical,
+      )
+      // Store Q&A feedback in localStorage for later use
+      localStorage.setItem('qnaFeedback', feedback)
+      // Show modal/section with feedback and hireability
+      this.showSection('interviewResults')
+      this.displayInterviewResults(feedback, { onlyQnA: true })
+      // Add a button to continue to DSA
+      let dsaBtn = document.createElement('button')
+      dsaBtn.textContent = 'Continue to DSA Round'
+      dsaBtn.style = 'margin-top:2rem;background:#64b5f6;color:#23201a;font-weight:600;padding:0.8rem 2.2rem;border-radius:0.8rem;font-size:1.1rem;box-shadow:0 1px 4px #0002;'
+      dsaBtn.onclick = () => { window.location.href = 'dsa.html' }
+      const resultsDiv = document.getElementById('interviewResults')
+      if (resultsDiv && !document.getElementById('continueToDsaBtn')) {
+        dsaBtn.id = 'continueToDsaBtn'
+        resultsDiv.appendChild(dsaBtn)
+      }
+    } catch (error) {
+      alert('Error generating feedback. Please try again.')
+    } finally {
+      showLoading(false)
     }
   }
 
@@ -529,28 +563,152 @@ class JobPrepApp {
     }
   }
 
-  displayInterviewResults(feedback) {
+  displayInterviewResults(feedback, opts = {}) {
     let parsed = null;
     try {
       parsed = JSON.parse(feedback);
     } catch (e) {
-      // fallback: show raw feedback if not JSON
-      document.getElementById("overallConfidence").textContent = "-";
+      document.getElementById("confidenceScoreCircle").innerHTML = '';
       document.getElementById("answerRelevancy").textContent = "-";
       document.getElementById("communicationScore").textContent = "-";
       document.getElementById("technicalScore").textContent = "-";
       document.getElementById("detailedFeedback").innerHTML = `<div class="prose max-w-none">${feedback.replace(/\n/g, "<br>")}</div>`;
+      document.getElementById("hireabilityBox").style.display = "none";
+      document.getElementById("dsaSummary").style.display = "none";
       return;
     }
-    document.getElementById("overallConfidence").textContent =
-      parsed.overallConfidence !== undefined && parsed.overallConfidence !== null ? `${parsed.overallConfidence}%` : "-";
-    document.getElementById("answerRelevancy").textContent =
-      parsed.answerRelevancy !== undefined && parsed.answerRelevancy !== null ? `${parsed.answerRelevancy}%` : "-";
-    document.getElementById("communicationScore").textContent =
-      parsed.communicationSkills !== undefined && parsed.communicationSkills !== null ? `${parsed.communicationSkills}%` : "-";
-    document.getElementById("technicalScore").textContent =
-      parsed.technicalSkills !== undefined && parsed.technicalSkills !== null && parsed.technicalSkills !== "N/A" ? `${parsed.technicalSkills}%` : "N/A";
+    let conf = parsed.overallConfidence !== undefined && parsed.overallConfidence !== null ? parsed.overallConfidence : null;
+    document.getElementById("confidenceScoreCircle").innerHTML = `<div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#4f8cff,#6ee7b7,#fbbf24);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 2px 8px #0001;"><span style="font-size:2.3rem;font-weight:bold;color:#222;">${conf !== null ? conf : '?'}</span><span style="font-size:1rem;color:#555;">% Confidence</span></div>`;
+    document.getElementById("answerRelevancy").textContent = parsed.answerRelevancy !== undefined && parsed.answerRelevancy !== null ? `${parsed.answerRelevancy}%` : "-";
+    document.getElementById("communicationScore").textContent = parsed.communicationSkills !== undefined && parsed.communicationSkills !== null ? `${parsed.communicationSkills}%` : "-";
+    const isTechnical = this.interviewState.isTechnical;
+    const techBox = document.getElementById("technicalScoreBox");
+    if (isTechnical && parsed.technicalSkills !== undefined && parsed.technicalSkills !== null && parsed.technicalSkills !== "N/A") {
+      techBox.style.display = "block";
+      document.getElementById("technicalScore").textContent = `${parsed.technicalSkills}%`;
+    } else {
+      techBox.style.display = "none";
+      document.getElementById("technicalScore").textContent = "N/A";
+    }
     document.getElementById("detailedFeedback").innerHTML = `<div class="prose max-w-none">${parsed.detailedFeedback}</div>`;
+    // DSA Summary (for technical)
+    const dsaSummary = document.getElementById("dsaSummary");
+    let dsaScore = null;
+    let dsaLevel = null;
+    let dsaMsg = null;
+    let dsaData = null;
+    if (isTechnical) {
+      let dsaLocal = localStorage.getItem('dsaSummary');
+      if (dsaLocal) {
+        try {
+          dsaData = JSON.parse(dsaLocal);
+          dsaScore = dsaData.dsaScore;
+          dsaLevel = dsaData.dsaLevel;
+          dsaMsg = dsaData.dsaMsg;
+        } catch (e) {}
+      }
+    }
+    // Control which sections are visible
+    if (opts.onlyQnA) {
+      dsaSummary.style.display = "none";
+    } else if (opts.onlyDSA) {
+      // Hide QnA scores
+      document.getElementById("confidenceScoreCircle").innerHTML = '';
+      document.getElementById("answerRelevancy").textContent = "-";
+      document.getElementById("communicationScore").textContent = "-";
+      techBox.style.display = "none";
+      document.getElementById("technicalScore").textContent = "N/A";
+      document.getElementById("detailedFeedback").innerHTML = '';
+      // Show only DSA summary
+      if (isTechnical && dsaData) {
+        dsaSummary.style.display = "block";
+        let html = `<div style="background:#e0f2fe;border-radius:1rem;padding:1.2rem;box-shadow:0 1px 4px #38bdf81a;"><div style="font-weight:600;color:#0284c7;margin-bottom:0.3rem;">DSA/Coding Round</div><div style="color:#0369a1;">Problems Solved: <b>${dsaData.solved}/${dsaData.total}</b> &nbsp;|&nbsp; Test Cases Passed: <b>${dsaData.totalPassed}/${dsaData.maxTestCases}</b></div><div style="margin-bottom:1rem;font-weight:600;color:#0284c7;">DSA: ${dsaLevel} - ${dsaMsg}</div><div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">`;
+        dsaData.dsaResults.forEach((r, i) => {
+          html += `<div style="flex:1;min-width:140px;background:${r.attempted ? (r.passed > 0 ? '#d1fae5' : '#fee2e2') : '#f3f4f6'};border-radius:0.8rem;padding:0.7rem 1rem;box-shadow:0 1px 4px #0001;display:flex;align-items:center;gap:0.5rem;">`;
+          html += r.attempted ? (r.passed > 0 ? '<span style="color:#22c55e;font-size:1.3rem;">✔️</span>' : '<span style="color:#ef4444;font-size:1.3rem;">❌</span>') : '<span style="color:#a1a1aa;font-size:1.3rem;">⏭️</span>';
+          html += `<span style="font-weight:600;">Problem ${i+1}</span><span style="margin-left:auto;font-size:0.95rem;">${r.attempted ? (r.passed > 0 ? `${r.passed} passed` : 'No test cases passed') : 'Skipped'}</span></div>`;
+        });
+        html += `</div></div>`;
+        dsaSummary.innerHTML = html;
+      } else {
+        dsaSummary.style.display = "none";
+      }
+      // Show DSA hireability
+      let hireability = '';
+      let hireColor = '#a16207';
+      let hireScore = dsaScore;
+      if (hireScore !== null) {
+        if (hireScore >= 80) { hireability = 'Highly Hireable (Coding)'; hireColor = '#22c55e'; }
+        else if (hireScore >= 65) { hireability = 'Hireable for Coding with Minor Improvements'; hireColor = '#eab308'; }
+        else if (hireScore >= 50) { hireability = 'Potential, Needs Coding Improvement'; hireColor = '#f59e42'; }
+        else { hireability = 'Not Hireable for Coding Yet'; hireColor = '#ef4444'; }
+      }
+      if (hireability) {
+        document.getElementById("hireabilityBox").style.display = "block";
+        document.getElementById("hireabilityText").textContent = hireability;
+        document.getElementById("hireabilityText").style.color = hireColor;
+      } else {
+        document.getElementById("hireabilityBox").style.display = "none";
+      }
+      return;
+    }
+    // Default: show both QnA and DSA if present (final review)
+    if (isTechnical && dsaData) {
+      dsaSummary.style.display = "block";
+      let html = `<div style="background:#e0f2fe;border-radius:1rem;padding:1.2rem;box-shadow:0 1px 4px #38bdf81a;"><div style="font-weight:600;color:#0284c7;margin-bottom:0.3rem;">DSA/Coding Round</div><div style="color:#0369a1;">Problems Solved: <b>${dsaData.solved}/${dsaData.total}</b> &nbsp;|&nbsp; Test Cases Passed: <b>${dsaData.totalPassed}/${dsaData.maxTestCases}</b></div><div style="margin-bottom:1rem;font-weight:600;color:#0284c7;">DSA: ${dsaLevel} - ${dsaMsg}</div><div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">`;
+      dsaData.dsaResults.forEach((r, i) => {
+        html += `<div style="flex:1;min-width:140px;background:${r.attempted ? (r.passed > 0 ? '#d1fae5' : '#fee2e2') : '#f3f4f6'};border-radius:0.8rem;padding:0.7rem 1rem;box-shadow:0 1px 4px #0001;display:flex;align-items:center;gap:0.5rem;">`;
+        html += r.attempted ? (r.passed > 0 ? '<span style="color:#22c55e;font-size:1.3rem;">✔️</span>' : '<span style="color:#ef4444;font-size:1.3rem;">❌</span>') : '<span style="color:#a1a1aa;font-size:1.3rem;">⏭️</span>';
+        html += `<span style="font-weight:600;">Problem ${i+1}</span><span style="margin-left:auto;font-size:0.95rem;">${r.attempted ? (r.passed > 0 ? `${r.passed} passed` : 'No test cases passed') : 'Skipped'}</span></div>`;
+      });
+      html += `</div></div>`;
+      dsaSummary.innerHTML = html;
+    } else {
+      dsaSummary.style.display = "none";
+    }
+    // Hireability (overall)
+    let hireability = '';
+    let hireColor = '#a16207';
+    let hireScore = (conf !== null && parsed.answerRelevancy !== undefined && parsed.communicationSkills !== undefined) ? (conf + parsed.answerRelevancy + parsed.communicationSkills) / 3 : null;
+    if (isTechnical && parsed.technicalSkills !== undefined && parsed.technicalSkills !== null && parsed.technicalSkills !== "N/A") {
+      hireScore = (hireScore + parsed.technicalSkills) / 2;
+    }
+    if (isTechnical && dsaScore !== null) {
+      hireScore = (hireScore + dsaScore) / 2;
+    }
+    if (hireScore !== null) {
+      if (hireScore >= 80) { hireability = 'Highly Hireable'; hireColor = '#22c55e'; }
+      else if (hireScore >= 65) { hireability = 'Hireable with Minor Improvements'; hireColor = '#eab308'; }
+      else if (hireScore >= 50) { hireability = 'Potential, Needs Improvement'; hireColor = '#f59e42'; }
+      else { hireability = 'Not Hireable Yet'; hireColor = '#ef4444'; }
+    }
+    if (hireability) {
+      document.getElementById("hireabilityBox").style.display = "block";
+      document.getElementById("hireabilityText").textContent = hireability;
+      document.getElementById("hireabilityText").style.color = hireColor;
+    } else {
+      document.getElementById("hireabilityBox").style.display = "none";
+    }
+    // Show summary feedbacks below
+    let summaryFeedback = '';
+    if (isTechnical && dsaLevel && dsaMsg) {
+      summaryFeedback += `<div style="margin-top:1.5rem;font-weight:600;color:#0284c7;">DSA: ${dsaLevel} - ${dsaMsg}</div>`;
+    }
+    if (parsed.detailedFeedback) {
+      // Try to extract correctness/confidence from detailedFeedback
+      let correctness = '', confidence = '';
+      if (/relevant|correct|accuracy|answer/i.test(parsed.detailedFeedback)) {
+        correctness = parsed.detailedFeedback.match(/(relevant|correct|accuracy|answer)[^.!?]*[.!?]/i);
+      }
+      if (/confidence|eye contact|body|nervous|shaking|posture/i.test(parsed.detailedFeedback)) {
+        confidence = parsed.detailedFeedback.match(/(confidence|eye contact|body|nervous|shaking|posture)[^.!?]*[.!?]/i);
+      }
+      if (correctness) summaryFeedback += `<div style="margin-top:0.7rem;font-weight:600;color:#7c3aed;">Correctness: ${correctness[0]}</div>`;
+      if (confidence) summaryFeedback += `<div style="margin-top:0.7rem;font-weight:600;color:#f59e42;">Confidence: ${confidence[0]}</div>`;
+    }
+    if (summaryFeedback) {
+      document.getElementById("detailedFeedback").innerHTML += `<div style="margin-top:2rem;">${summaryFeedback}</div>`;
+    }
   }
 
   // Resume Builder Functions
@@ -1233,16 +1391,45 @@ function nextDsaProblem() {
 }
 
 function showDsaFeedback() {
-  // For demo, just show summary. You can call Gemini for feedback if desired.
-  let html = '<h3 class="text-xl font-bold mb-4">DSA Round Feedback</h3><ul>'
+  // Calculate DSA summary
+  let total = dsaResults.length;
+  let attempted = dsaResults.filter(r => r.attempted).length;
+  let solved = dsaResults.filter(r => r.attempted && r.passed > 0).length;
+  let totalPassed = dsaResults.reduce((acc, r) => acc + (r.passed || 0), 0);
+  let maxTestCases = total * 5; // assuming 5 test cases per problem
+  let dsaScore = Math.round((totalPassed / maxTestCases) * 100);
+  let dsaLevel = dsaScore >= 80 ? 'Excellent' : dsaScore >= 50 ? 'Decent' : 'Needs Improvement';
+  let dsaMsg = dsaLevel === 'Excellent' ? 'Great job on coding! You solved most problems.' : dsaLevel === 'Decent' ? 'You solved some problems, but can improve coding skills.' : 'Needs significant improvement in coding.';
+  // Store DSA summary in localStorage for final review
+  localStorage.setItem('dsaSummary', JSON.stringify({
+    total, attempted, solved, totalPassed, maxTestCases, dsaScore, dsaLevel, dsaMsg, dsaResults
+  }));
+  // Show summary and continue button
+  let html = `<h3 class="text-xl font-bold mb-4">DSA Round Feedback</h3>
+    <div style="margin-bottom:1rem;font-size:1.1rem;">Problems Solved: <b>${solved}/${total}</b> &nbsp;|&nbsp; Test Cases Passed: <b>${totalPassed}/${maxTestCases}</b></div>
+    <div style="margin-bottom:1rem;font-weight:600;color:#0284c7;">${dsaMsg}</div>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">`;
   dsaResults.forEach((r, i) => {
-    html += `<li>Problem ${i+1}: ${r.attempted ? `Attempted, Passed ${r.passed} test cases` : 'Skipped'}</li>`
-  })
-  html += '</ul>'
-  document.getElementById("dsaFeedback").innerHTML = html
-  document.getElementById("codingInterface").scrollIntoView({ behavior: 'smooth' })
-  // Hide the code editor after feedback
-  document.getElementById("codingInterface").classList.add("hidden")
+    html += `<div style="flex:1;min-width:140px;background:${r.attempted ? (r.passed > 0 ? '#d1fae5' : '#fee2e2') : '#f3f4f6'};border-radius:0.8rem;padding:0.7rem 1rem;box-shadow:0 1px 4px #0001;display:flex;align-items:center;gap:0.5rem;">`;
+    html += r.attempted ? (r.passed > 0 ? '<span style="color:#22c55e;font-size:1.3rem;">✔️</span>' : '<span style="color:#ef4444;font-size:1.3rem;">❌</span>') : '<span style="color:#a1a1aa;font-size:1.3rem;">⏭️</span>';
+    html += `<span style="font-weight:600;">Problem ${i+1}</span><span style="margin-left:auto;font-size:0.95rem;">${r.attempted ? (r.passed > 0 ? `${r.passed} passed` : 'No test cases passed') : 'Skipped'}</span></div>`;
+  });
+  html += `</div><button id="continueToReviewBtn" style="margin-top:2rem;background:#64b5f6;color:#23201a;font-weight:600;padding:0.8rem 2.2rem;border-radius:0.8rem;font-size:1.1rem;box-shadow:0 1px 4px #0002;">Continue to Final Review</button>`;
+  document.getElementById("dsaFeedback").innerHTML = html;
+  document.getElementById("codingInterface").scrollIntoView({ behavior: 'smooth' });
+  document.getElementById("codingInterface").classList.add("hidden");
+  // Show DSA feedback modal/section
+  document.getElementById("dsaFeedback").style.display = "block";
+  // Continue button handler
+  setTimeout(() => {
+    const btn = document.getElementById("continueToReviewBtn");
+    if (btn) {
+      btn.onclick = () => {
+        window.location.href = "index.html#interviewResults";
+        // Optionally, trigger final review logic here
+      };
+    }
+  }, 100);
 }
 
 window.addEventListener("DOMContentLoaded", setupDsaModalListener)
