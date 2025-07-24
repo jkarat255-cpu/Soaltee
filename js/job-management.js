@@ -188,6 +188,15 @@ export class JobManager {
     return { data, error };
   }
 
+  // Delete an application from Supabase by id
+  async deleteApplicationFromSupabase(applicationId) {
+    const { error } = await supabase
+      .from('applications')
+      .delete()
+      .eq('id', applicationId);
+    return { error };
+  }
+
   // Fetch applications for a specific user (candidate)
   async fetchApplicationsByEmail(email) {
     const { data, error } = await supabase

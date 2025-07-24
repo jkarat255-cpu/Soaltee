@@ -1438,15 +1438,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Employer: Render application card with Ignore/Call buttons
 window.renderEmployerApplicationCard = function(app) {
+  console.log('Rendering app:', app); // Debug: log the app object
   let actionBtns = '';
-  if (app.status === 'pending') {
+  if (app.status && app.status.toLowerCase() === 'pending') {
     actionBtns = `
       <button class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 mr-2" onclick="window.ignoreApplication('${app.id}')">Ignore</button>
       <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" onclick="window.callForInterview('${app.id}', '${app.email}', '${app.name}')">Call for Interview</button>
     `;
-  } else if (app.status === 'ignored') {
+  } else if (app.status && app.status.toLowerCase() === 'ignored') {
     actionBtns = `<span class='text-red-600 font-semibold'>Ignored</span>`;
-  } else if (app.status === 'called') {
+  } else if (app.status && app.status.toLowerCase() === 'called') {
     actionBtns = `<button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onclick="window.openChatModal({id: '${app.id}', email: '${app.email}', name: '${app.name}'})">Chat</button>`;
   }
   return `
@@ -1462,12 +1463,12 @@ window.renderEmployerApplicationCard = function(app) {
 };
 
 window.ignoreApplication = async function(applicationId) {
-  const { data, error } = await window.app.jobManager.updateApplicationStatusInSupabase(applicationId, 'ignored');
+  const { error } = await window.app.jobManager.deleteApplicationFromSupabase(applicationId);
   if (!error) {
-    alert('Application ignored.');
+    alert('Application ignored and deleted.');
     window.location.reload();
   } else {
-    alert('Error ignoring application.');
+    alert('Error deleting application.');
   }
 };
 
