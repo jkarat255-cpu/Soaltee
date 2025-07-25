@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mock Interview Setup - JobPrep Pro</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="styles/main.css" rel="stylesheet">
+  <style>
+    body {
+      background: var(--bg-main);
+      color: var(--text-main);
+      font-family: var(--font-main);
+    }
+    .setup-card {
+      background: #2d261c;
+      color: var(--text-main);
+      border-radius: 1.5rem;
+      box-shadow: var(--shadow-main);
+      padding: 2.5rem;
+      max-width: 480px;
+      margin: 4rem auto 0 auto;
+    }
+    label {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    input, textarea {
+      background: var(--bg-accent);
+      color: var(--text-main);
+      border: 1px solid var(--border-main);
+      border-radius: 0.5rem;
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1.2rem;
+    }
+    input[type="file"] {
+      padding: 0.5rem 0.75rem;
+      background: none;
+    }
+    button {
+      background: var(--accent-blue);
+      color: var(--bg-card);
+      border-radius: 0.7rem;
+      font-weight: 600;
+      padding: 0.9rem 0;
+      width: 100%;
+      font-size: 1.1rem;
+      margin-top: 1.2rem;
+      box-shadow: 0 1px 4px #0003;
+      transition: background 0.2s, color 0.2s;
+    }
+    button:hover {
+      background: #ffd166;
+      color: #23201a;
+    }
+  </style>
+</head>
+<body>
+  <div class="setup-card">
+    <h2 class="text-2xl font-bold mb-6 text-center" style="color:var(--accent-amber);">Mock Interview Setup</h2>
+    <form id="mockSetupForm">
+      <label for="jobTitle">Job Title <span style="color:#ffd166">*</span></label>
+      <input type="text" id="jobTitle" required placeholder="e.g., Chef, Data Scientist, Marketing Manager">
+
+      <label for="resumeFile">Upload Resume (PDF or Text, optional)</label>
+      <input type="file" id="resumeFile" accept=".pdf,.txt">
+
+      <label for="jobDescription">Job Description</label>
+      <textarea id="jobDescription" rows="4" placeholder="Paste the job description here..."></textarea>
+
+      <button type="submit">Proceed to Mock Interview</button>
+    </form>
+    <div id="setupMessage" class="mt-4 text-center text-sm text-red-600"></div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    function readFileAsText(file) {
+      return new Promise((resolve, reject) => {
+        if (file.type === "application/pdf") {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const typedarray = new Uint8Array(e.target.result);
+            pdfjsLib.getDocument(typedarray).promise.then(pdf => {
+              let text = "";
+              let loadPage = function(pageNum) {
+                pdf.getPage(pageNum).then(page => {
+                  page.getTextContent().then(content => {
+                    text += content.items.map(item => item.str).join(" ") + "\n";
+                    if (pageNum < pdf.numPages) {
+                      loadPage(pageNum + 1);
+                    } else {
+                      resolve(text);
+                    }
+                  });
+                });
+              };
+              loadPage(1);
+            });
+          };
+          reader.onerror = reject;
+          reader.readAsArrayBuffer(file);
+        } else {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.onerror = reject;
+          reader.readAsText(file);
+        }
+      });
+    }
+
+    document.getElementById('mockSetupForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const jobTitle = document.getElementById('jobTitle').value.trim();
+      const jobDescription = document.getElementById('jobDescription').value.trim();
+      const resumeFile = document.getElementById('resumeFile').files[0];
+      const setupMessage = document.getElementById('setupMessage');
+      setupMessage.textContent = '';
+      if (!jobTitle) {
+        setupMessage.textContent = 'Please enter a job title.';
+        return;
+      }
+      let resumeText = '';
+      if (resumeFile) {
+        try {
+          resumeText = await readFileAsText(resumeFile);
+        } catch (err) {
+          setupMessage.textContent = 'Could not read resume file.';
+          return;
+        }
+      }
+      localStorage.setItem('jobTitle', jobTitle);
+      localStorage.setItem('resumeText', resumeText);
+      localStorage.setItem('jobDescription', jobDescription);
+      window.location.href = 'mock-interview.html';
+    };
+  </script>
+</body>
+</html> 

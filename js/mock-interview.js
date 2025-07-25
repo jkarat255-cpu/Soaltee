@@ -62,18 +62,10 @@ function showFinalFeedback() {
 }
 
 async function fetchQuestions() {
-  // Clear previous values to avoid old data influencing the questions
-  localStorage.removeItem('resumeText');
-  localStorage.removeItem('jobDescription');
-
-  let resumeText = '';
-  let jobDescription = '';
-  // Always prompt for job title
-  jobTitle = prompt('Enter the job title or position for this mock interview:') || '';
-  resumeText = prompt('Paste your resume text (or leave blank):') || '';
-  jobDescription = prompt('Paste the job description:') || '';
-  localStorage.setItem('resumeText', resumeText);
-  localStorage.setItem('jobDescription', jobDescription);
+  // Read values from localStorage (set by mock-setup.html)
+  jobTitle = localStorage.getItem('jobTitle') || '';
+  let resumeText = localStorage.getItem('resumeText') || '';
+  let jobDescription = localStorage.getItem('jobDescription') || '';
   const gemini = new GeminiAPI();
   let questionsText = await gemini.generateMockInterviewQuestions(resumeText, jobDescription, true, jobTitle);
   questions = questionsText

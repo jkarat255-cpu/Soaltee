@@ -102,9 +102,14 @@ export class SpeechManager {
     utterance.pitch = options.pitch || 1
     utterance.volume = options.volume || 0.8
 
-    // Always try to use a female voice if available
+    // Always try to use a female English voice if available
     const voices = this.synthesis.getVoices();
-    const femaleVoice = voices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('woman') || v.name.toLowerCase().includes('girl') || (v.lang.startsWith('en') && v.name.toLowerCase().includes('us') && v.name.toLowerCase().includes('f')) || v.gender === 'female');
+    // Try to find a known female English voice
+    let femaleVoice = voices.find(v => v.lang.startsWith('en') && (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('zira') || v.name.toLowerCase().includes('susan') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('linda') || v.name.toLowerCase().includes('f') || v.gender === 'female'));
+    // Fallback: any English voice with 'F' or 'female' in the name
+    if (!femaleVoice) {
+      femaleVoice = voices.find(v => v.lang.startsWith('en') && (v.name.toLowerCase().includes('f') || v.name.toLowerCase().includes('female')));
+    }
     if (femaleVoice) {
       utterance.voice = femaleVoice;
     }

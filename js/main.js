@@ -151,7 +151,7 @@ class JobPrepApp {
   }
 
   startMockInterview() {
-    window.location.href = 'mock-interview.html';
+    window.location.href = 'mock-setup.html';
   }
 
   async initializePracticeInterview() {

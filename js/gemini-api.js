@@ -76,7 +76,7 @@ Format: Return exactly 10 questions, numbered 1-10, one per line. The first 5 mu
 
   async generateMockInterviewQuestions(resumeText, jobDescription, isTechnical = false, jobTitle = "") {
     const technicalNote = isTechnical
-      ? "Include 3-4 technical/coding questions and 6-7 behavioral questions."
+      ? "Include job related +  behavioral questions."
       : "Focus on behavioral and situational questions based on the resume and job requirements."
 
     const prompt = `Based on this resume, job description, and job title, generate exactly 10 interview questions:
