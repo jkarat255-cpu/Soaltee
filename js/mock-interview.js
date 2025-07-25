@@ -115,22 +115,22 @@ function stopRecordingAnswer() {
 }
 
 async function analyzeAnswer(answerText) {
-  // For demo, use Gemini to evaluate answer correctness, preparedness, fluency
-  // and use ConfidenceAnalyzer for confidence
+  // Use Gemini to evaluate answer and get real feedback
   const gemini = new GeminiAPI();
   let jobDescription = localStorage.getItem('jobDescription') || '';
   let question = questions[currentQuestion];
   let feedback = await gemini.evaluateAnswer(question, answerText, jobDescription);
-  // Parse feedback for scores (simple regex, fallback to random)
-  let correctness = (feedback.match(/Correctness:\s*(\d{1,3})/i) || [])[1] || Math.round(Math.random()*100);
-  let preparedness = (feedback.match(/Preparedness:\s*(\d{1,3})/i) || [])[1] || Math.round(Math.random()*100);
-  let fluency = (feedback.match(/Fluency:\s*(\d{1,3})/i) || [])[1] || Math.round(Math.random()*100);
-  let confidence = confidenceAnalyzer.getAverageConfidence() || Math.round(Math.random()*100);
+  // Parse Gemini's score and feedback
+  let scoreMatch = feedback.match(/Score:\s*(\d{1,2})\/10/i);
+  let score = scoreMatch ? Number(scoreMatch[1]) * 10 : 50;
+  let feedbackText = (feedback.match(/Feedback:\s*([\s\S]*)/i) || [])[1] || feedback;
+  // For now, use score for all categories (until Gemini returns more granular feedback)
   return {
-    correctness: Number(correctness),
-    preparedness: Number(preparedness),
-    fluency: Number(fluency),
-    confidence: Number(confidence)
+    correctness: score,
+    preparedness: score,
+    fluency: score,
+    confidence: confidenceAnalyzer.getAverageConfidence() || score,
+    feedback: feedbackText.trim()
   };
 }
 

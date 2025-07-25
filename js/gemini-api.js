@@ -1,7 +1,7 @@
 // Centralized Gemini API integration
 export class GeminiAPI {
   constructor() {
-    this.apiKey = "AIzaSyDEOFoXBAnnaCPFonvVskSIXW5n5m6M5bQ" // User's actual API key
+    this.apiKey = "AIzaSyAIkl0GzrtD4iVmAidlNzdGAYDroD90eMk" // User's new API key
     this.model = "gemini-2.5-flash";
     this.baseUrl = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent`;
   }

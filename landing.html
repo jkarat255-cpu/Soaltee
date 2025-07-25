@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Interview Platform - Your AI-Powered Career Companion</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #ffffff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: #000;
+            color: #fff;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #ccc;
+        }
+
+        .btn {
+            background: #fff;
+            color: #000;
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #fff;
+        }
+
+        .btn-secondary:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #000 0%, #333 100%);
+            color: #fff;
+            padding: 120px 0 80px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: #ccc;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* About Section */
+        .about {
+            padding: 80px 0;
+            background: #f8f8f8;
+        }
+
+        .about h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #000;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .about-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .features-list {
+            list-style: none;
+        }
+
+        .features-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .features-list li:before {
+            content: "✓";
+            color: #000;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 80px 0;
+            background: #fff;
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #000;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: #f8f8f8;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: #000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #000;
+        }
+
+        /* Jobs Section */
+        .jobs {
+            padding: 80px 0;
+            background: #f8f8f8;
+        }
+
+        .jobs h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #000;
+        }
+
+        .jobs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .job-card {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            border: 1px solid #eee;
+            transition: all 0.3s;
+        }
+
+        .job-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .job-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #000;
+        }
+
+        .job-company {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .job-details {
+            margin-bottom: 1.5rem;
+        }
+
+        .job-tag {
+            display: inline-block;
+            background: #000;
+            color: #fff;
+            padding: 0.2rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin: 0.2rem;
+        }
+
+        /* Testimonials */
+        .testimonials {
+            padding: 80px 0;
+            background: #fff;
+        }
+
+        .testimonials h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #000;
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .testimonial-card {
+            background: #f8f8f8;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 4px solid #000;
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .testimonial-author {
+            font-weight: bold;
+            color: #000;
+        }
+
+        .testimonial-role {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        footer {
+            background: #000;
+            color: #fff;
+            padding: 3rem 0 1rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section ul li a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section ul li a:hover {
+            color: #fff;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #333;
+            color: #ccc;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .about-content {
+                grid-template-columns: 1fr;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="container">
+            <div class="logo">JobInterview Pro</div>
+            <ul class="nav-links">
+                <li><a href="auth.html">Home</a></li>
+                <li><a href="auth.html">About Us</a></li>
+                <li><a href="auth.html">Features</a></li>
+                <li><a href="auth.html">Jobs</a></li>
+                <li><a href="auth.html">Testimonials</a></li>
+            </ul>
+            <a href="auth.html" class="btn">Get Started</a>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Job Interview Platform</h1>
+            <p>Your AI-powered career companion for interview success</p>
+            <div class="hero-buttons">
+                <a href="auth.html" class="btn">Get Started</a>
+                <a href="auth.html" class="btn btn-secondary">Seek Jobs</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about">
+        <div class="container">
+            <h2>About Our Platform</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>We're revolutionizing the job interview process with cutting-edge AI technology. Our platform provides comprehensive tools to help job seekers prepare, practice, and succeed in their career journey.</p>
+                    <p>From AI-powered mock interviews to intelligent job matching, we're here to boost your confidence and land your dream job.</p>
+                </div>
+                <div>
+                    <ul class="features-list">
+                        <li>AI-powered mock interview practice</li>
+                        <li>Real-time feedback and confidence analysis</li>
+                        <li>Smart resume builder</li>
+                        <li>Intelligent job matching</li>
+                        <li>Video and speech analysis</li>
+                        <li>Employer dashboard for hiring</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2>Our Features</h2>
+            <div class="features-grid">
+                <div class="feature-card" onclick="window.location.href='auth.html'">
+                    <div class="feature-icon">🎤</div>
+                    <h3>Mock Interview</h3>
+                    <p>Practice with AI-powered interviews and get real-time feedback on your performance.</p>
+                </div>
+                <div class="feature-card" onclick="window.location.href='auth.html'">
+                    <div class="feature-icon">📄</div>
+                    <h3>Resume Builder</h3>
+                    <p>Create professional resumes with our intelligent builder and optimization tools.</p>
+                </div>
+                <div class="feature-card" onclick="window.location.href='auth.html'">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Job Search</h3>
+                    <p>Find your perfect job match with our AI-powered job recommendation system.</p>
+                </div>
+                <div class="feature-card" onclick="window.location.href='auth.html'">
+                    <div class="feature-icon">💼</div>
+                    <h3>Employer Dashboard</h3>
+                    <p>Post jobs, manage candidates, and streamline your hiring process.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Jobs Section -->
+    <section class="jobs">
+        <div class="container">
+            <h2>Featured Jobs</h2>
+            <div class="jobs-grid">
+                <div class="job-card">
+                    <div class="job-title">Senior Software Engineer</div>
+                    <div class="job-company">Tech Corp Inc.</div>
+                    <div class="job-details">
+                        <div class="job-tag">Remote</div>
+                        <div class="job-tag">Full-time</div>
+                        <div class="job-tag">$120k-150k</div>
+                    </div>
+                    <p>Join our innovative team building next-generation software solutions...</p>
+                    <br>
+                    <a href="auth.html" class="btn">Apply Now</a>
+                </div>
+                <div class="job-card">
+                    <div class="job-title">Product Manager</div>
+                    <div class="job-company">Innovation Labs</div>
+                    <div class="job-details">
+                        <div class="job-tag">Hybrid</div>
+                        <div class="job-tag">Full-time</div>
+                        <div class="job-tag">$100k-130k</div>
+                    </div>
+                    <p>Lead product strategy and development for cutting-edge AI products...</p>
+                    <br>
+                    <a href="auth.html" class="btn">Apply Now</a>
+                </div>
+                <div class="job-card">
+                    <div class="job-title">UX Designer</div>
+                    <div class="job-company">Design Studio Pro</div>
+                    <div class="job-details">
+                        <div class="job-tag">On-site</div>
+                        <div class="job-tag">Full-time</div>
+                        <div class="job-tag">$80k-100k</div>
+                    </div>
+                    <p>Create beautiful and intuitive user experiences for web and mobile...</p>
+                    <br>
+                    <a href="auth.html" class="btn">Apply Now</a>
+                </div>
+                <div class="job-card">
+                    <div class="job-title">Data Scientist</div>
+                    <div class="job-company">AI Solutions Ltd</div>
+                    <div class="job-details">
+                        <div class="job-tag">Remote</div>
+                        <div class="job-tag">Contract</div>
+                        <div class="job-tag">$90k-120k</div>
+                    </div>
+                    <p>Analyze complex datasets and build machine learning models...</p>
+                    <br>
+                    <a href="auth.html" class="btn">Apply Now</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="container">
+            <h2>What Our Users Say</h2>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-text">"This platform helped me land my dream job! The mock interviews were incredibly realistic and the feedback was invaluable."</div>
+                    <div class="testimonial-author">Sarah Johnson</div>
+                    <div class="testimonial-role">Software Engineer at Google</div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-text">"The AI-powered resume builder created a professional resume that got me multiple interview calls within a week."</div>
+                    <div class="testimonial-author">Michael Chen</div>
+                    <div class="testimonial-role">Product Manager at Microsoft</div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-text">"As an employer, this platform has streamlined our hiring process. We find better candidates faster than ever before."</div>
+                    <div class="testimonial-author">Emily Rodriguez</div>
+                    <div class="testimonial-role">HR Director at StartupXYZ</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>For Job Seekers</h3>
+                    <ul>
+                        <li><a href="auth.html">Interview Practice</a></li>
+                        <li><a href="auth.html">Resume Builder</a></li>
+                        <li><a href="auth.html">Job Search</a></li>
+                        <li><a href="auth.html">Dashboard</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>For Employers</h3>
+                    <ul>
+                        <li><a href="auth.html">Employer Dashboard</a></li>
+                        <li><a href="auth.html">Post Jobs</a></li>
+                        <li><a href="auth.html">Manage Candidates</a></li>
+                        <li><a href="auth.html">Analytics</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="auth.html">Help Center</a></li>
+                        <li><a href="auth.html">Contact Us</a></li>
+                        <li><a href="auth.html">FAQ</a></li>
+                        <li><a href="auth.html">Live Chat</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Legal</h3>
+                    <ul>
+                        <li><a href="auth.html">Privacy Policy</a></li>
+                        <li><a href="auth.html">Terms of Service</a></li>
+                        <li><a href="auth.html">Cookie Policy</a></li>
+                        <li><a href="auth.html">GDPR</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Job Interview Platform. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add scroll effect to header
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            if (window.scrollY > 100) {
+                header.style.background = 'rgba(0, 0, 0, 0.95)';
+            } else {
+                header.style.background = '#000';
+            }
+        });
+
+        // Add click handlers for feature cards
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('click', function() {
+                window.location.href = 'auth.html';
+            });
+        });
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe elements for animation
+        document.querySelectorAll('.feature-card, .job-card, .testimonial-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

@@ -1,28 +1,52 @@
-/* === Dark Brownish Modern Theme === */
+/* === Black & White Minimalist Theme === */
 :root {
-  --bg-main: #23201a;
-  --bg-card: #2d261c;
-  --bg-accent: #3b2f23;
-  --text-main: #f5ede3;
-  --text-muted: #bfae9c;
-  --accent-amber: #ffb300;
-  --accent-orange: #ff7043;
-  --accent-green: #7cb342;
-  --accent-blue: #64b5f6;
-  --border-main: #4b3a2f;
-  --shadow-main: 0 2px 16px #0006;
-  --font-main: 'Inter', 'Poppins', 'Montserrat', Arial, sans-serif;
+  --bg-main: #fff;
+  --bg-card: #f5f5f5;
+  --bg-accent: #eaeaea;
+  --text-main: #111;
+  --text-muted: #888;
+  --accent: #000;
+  --border-main: #ddd;
 }
 
 body {
   background: var(--bg-main) !important;
   color: var(--text-main) !important;
-  font-family: var(--font-main) !important;
+  font-family: var(--font-main);
 }
 
-h1, h2, h3, h4, h5, h6 {
-  color: var(--accent-amber);
-  font-family: var(--font-main);
+a, .btn, button {
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  background: var(--bg-main);
+  transition: background 0.2s, color 0.2s;
+}
+a:hover, .btn:hover, button:hover {
+  background: var(--accent);
+  color: var(--bg-main);
+}
+
+button, .btn, input[type=submit] {
+  background: #111 !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 0.7rem !important;
+  font-weight: 600 !important;
+  padding: 0.9rem 2rem !important;
+  font-size: 1.1rem !important;
+  box-shadow: 0 1px 4px #0002 !important;
+  transition: background 0.2s, color 0.2s, border 0.2s !important;
+  display: inline-block !important;
+}
+button:hover, .btn:hover, input[type=submit]:hover {
+  background: #fff !important;
+  color: #111 !important;
+  border: 1.5px solid #111 !important;
+}
+
+.card, .section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-main);
 }
 
 .bg-white, .bg-gray-50, .bg-gray-100, .bg-blue-50, .bg-green-50, .bg-purple-50, .bg-yellow-50 {
@@ -34,49 +58,8 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-main) !important;
 }
 
-.text-blue-500, .text-green-500, .text-purple-500, .text-yellow-600 {
-  color: var(--accent-blue) !important;
-}
-
-.text-green-600 {
-  color: var(--accent-green) !important;
-}
-
-.text-red-600, .text-red-500 {
-  color: var(--accent-orange) !important;
-}
-
-.text-blue-600 {
-  color: var(--accent-blue) !important;
-}
-
-.text-yellow-600 {
-  color: var(--accent-amber) !important;
-}
-
-.bg-blue-500, .bg-blue-600, .hover\:bg-blue-600, .hover\:bg-blue-700 {
-  background: var(--accent-blue) !important;
-  color: var(--bg-card) !important;
-}
-
-.bg-green-500, .bg-green-600, .hover\:bg-green-600, .hover\:bg-green-700 {
-  background: var(--accent-green) !important;
-  color: var(--bg-card) !important;
-}
-
-.bg-purple-500, .bg-purple-600, .hover\:bg-purple-600 {
-  background: #7c3aed !important;
-  color: var(--bg-card) !important;
-}
-
-.bg-yellow-50, .bg-yellow-500, .bg-yellow-600, .hover\:bg-yellow-600 {
-  background: var(--accent-amber) !important;
-  color: var(--bg-card) !important;
-}
-
-.bg-gray-500, .bg-gray-600, .hover\:bg-gray-600, .hover\:bg-gray-500, .bg-gray-400 {
-  background: var(--bg-accent) !important;
-  color: var(--text-main) !important;
+.text-muted, .text-gray-400, .text-stone-400 {
+  color: var(--text-muted) !important;
 }
 
 .border, .border-blue-200, .border-green-200, .border-gray-200 {
@@ -88,7 +71,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .shadow-lg, .shadow-xl {
-  box-shadow: var(--shadow-main) !important;
+  box-shadow: 0 2px 16px #0001 !important;
 }
 
 input, textarea, select {
@@ -98,202 +81,25 @@ input, textarea, select {
   font-family: var(--font-main) !important;
 }
 
-input:focus, textarea:focus, select:focus {
-  outline: 2px solid var(--accent-amber) !important;
-  background: #3b2f23 !important;
+/* Remove/override any colored classes */
+.bg-amber-600, .bg-amber-700, .bg-amber-500, .bg-blue-500, .bg-blue-600, .bg-green-500, .bg-green-600, .bg-purple-500, .bg-purple-600, .bg-yellow-500, .bg-yellow-600, .bg-red-500, .bg-red-600 {
+  background: var(--accent) !important;
+  color: var(--bg-main) !important;
 }
 
-button {
-  font-family: var(--font-main) !important;
-  border-radius: 0.7rem !important;
-  box-shadow: 0 1px 4px #0003;
-  transition: background 0.2s, color 0.2s;
+.text-amber-600, .text-amber-700, .text-amber-500, .text-blue-500, .text-green-500, .text-purple-500, .text-yellow-600, .text-red-600, .text-red-500 {
+  color: var(--accent) !important;
 }
 
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+/* Remove gradients */
+.bg-gradient-to-r, .bg-gradient-to-br, .bg-gradient-to-bl, .bg-gradient-to-t, .bg-gradient-to-b, .bg-gradient-to-l, .bg-gradient-to-tr, .bg-gradient-to-tl {
+  background: var(--bg-card) !important;
 }
 
-a {
-  color: var(--accent-blue);
-}
-
-/* Custom feedback/flexbox UI overrides */
-#practiceFeedback, #detailedFeedback, #dsaFeedback {
-  background: linear-gradient(120deg,#3b2f23 0%,#4b3a2f 100%) !important;
-  color: var(--text-main) !important;
-  box-shadow: var(--shadow-main) !important;
-}
-
-/* Nav and modal tweaks */
-nav, .bg-blue-600 {
-  background: #3b2f23 !important;
-  color: var(--accent-amber) !important;
-  box-shadow: var(--shadow-main) !important;
-}
-
-#loadingOverlay, #dsaModal {
-  background: rgba(35,32,26,0.95) !important;
-}
-
-/* Resume preview border */
-#resumePreview {
-  background: var(--bg-main) !important;
-  border: 2px solid var(--border-main) !important;
-  color: var(--text-main) !important;
-}
-
-/* Custom styles for the application */
-.confidence-high {
-  background-color: #10b981 !important;
-}
-
-.confidence-medium {
-  background-color: #f59e0b !important;
-}
-
-.confidence-low {
-  background-color: #ef4444 !important;
-}
-
-.recording {
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
-  }
-}
-
-.resume-template {
-  font-family: "Times New Roman", serif;
-  line-height: 1.6;
-  color: #333;
-}
-
-.resume-template h1 {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 10px;
-  text-align: center;
-  border-bottom: 2px solid #333;
-  padding-bottom: 5px;
-}
-
-.resume-template h2 {
-  font-size: 18px;
-  font-weight: bold;
-  margin-top: 20px;
-  margin-bottom: 10px;
-  color: #2563eb;
-  border-bottom: 1px solid #2563eb;
-}
-
-.resume-template .contact-info {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.resume-template .section {
-  margin-bottom: 20px;
-}
-
-.resume-template ul {
-  margin-left: 20px;
-}
-
-.resume-template li {
-  margin-bottom: 5px;
-}
-
-.job-card {
-  transition: transform 0.2s ease-in-out;
-}
-
-.job-card:hover {
-  transform: translateY(-2px);
-}
-
-.candidate-card {
-  transition: all 0.3s ease;
-}
-
-.candidate-card:hover {
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-}
-
-#codeEditor {
-  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
-}
-
-.confidence-indicator {
-  transition: all 0.3s ease;
-}
-
-.speech-wave {
-  display: inline-block;
-  width: 4px;
-  height: 20px;
-  background: #3b82f6;
-  margin: 0 1px;
-  animation: wave 1s infinite ease-in-out;
-}
-
-.speech-wave:nth-child(2) {
-  animation-delay: 0.1s;
-}
-.speech-wave:nth-child(3) {
-  animation-delay: 0.2s;
-}
-.speech-wave:nth-child(4) {
-  animation-delay: 0.3s;
-}
-
-@keyframes wave {
-  0%,
-  40%,
-  100% {
-    transform: scaleY(0.4);
-  }
-  20% {
-    transform: scaleY(1);
-  }
-}
-
-.fade-in {
-  animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.slide-up {
-  animation: slideUp 0.3s ease-out;
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+.gradient-text {
+  background: none !important;
+  color: var(--accent) !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: initial !important;
+  background-clip: initial !important;
 }
