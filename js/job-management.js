@@ -211,7 +211,7 @@ export class JobManager {
   async fetchAllApplicationsFromSupabase() {
     const { data, error } = await supabase
       .from('applications')
-      .select('id, name, email, phone, description, status')
+      .select('id, name, email, phone, description, status, resume_url')
       .order('id', { ascending: false });
     return { data, error };
   }
