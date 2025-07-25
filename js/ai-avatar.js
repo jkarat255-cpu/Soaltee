@@ -25,21 +25,30 @@ window.aiAvatarSpeak = function(text) {
   // FAKE LIPSYNC: animate multiple morphs for 2 seconds, fully open/close (max open)
   let t = 0;
   const duration = 8000; // ms
-  const interval = 100; // ms
-  function setMouthMorphs(val) {
-    head.setValue && head.setValue('mouthOpen', val);
-    head.setValue && head.setValue('jawOpen', val);
-    head.setValue && head.setValue('viseme_aa', val);
-    head.setValue && head.setValue('mouthFunnel', val);
+  const interval = 60; // ms
+  function setMouthMorphs(height, width) {
+    head.setValue && head.setValue('mouthOpen', height);
+    head.setValue && head.setValue('jawOpen', height);
+    head.setValue && head.setValue('viseme_aa', height);
+    head.setValue && head.setValue('mouthFunnel', height);
+    head.setValue && head.setValue('mouthStretchLeft', width);
+    head.setValue && head.setValue('mouthStretchRight', width);
   }
   function animateMouth() {
     if (t >= duration) {
-      setMouthMorphs(0);
+      setMouthMorphs(0.15, 0.05);
       return;
     }
-    // Alternate mouth fully open/closed (max open = 2)
-    const value = (t / interval) % 2 === 0 ? 2 : 0;
-    setMouthMorphs(value);
+    // Randomly vary height and width for more natural talking (very subtle, more frequent random jumps)
+    let height;
+    if (Math.random() < 0.4) {
+      // 40% chance: jump to min or max
+      height = Math.random() < 0.5 ? 0.18 : 0.22;
+    } else {
+      height = 0.18 + Math.random() * 0.04; // 0.18–0.22
+    }
+    const width = 0.08 + Math.random() * 0.15;  // 0.08–0.23
+    setMouthMorphs(height, width);
     t += interval;
     setTimeout(animateMouth, interval);
   }
