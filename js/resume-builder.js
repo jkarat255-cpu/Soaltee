@@ -9,6 +9,7 @@ export class ResumeBuilder {
     this.templates = {
       professional: this.professionalTemplate,
       modern: this.modernTemplate,
+      classic: this.classicTemplate,
       creative: this.creativeTemplate,
     }
     this.currentTemplate = "professional"
@@ -150,58 +151,41 @@ export class ResumeBuilder {
   }
 
   modernTemplate(data) {
+    // Modern: left sidebar for contact, right for content, bold color, icons, clean lines
     return `
-            <div class="resume-template" style="font-family: Arial, sans-serif;">
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; margin: -20px -20px 20px -20px;">
-                    <h1 style="margin: 0; font-size: 28px;">${data.fullName || "Your Name"}</h1>
-                    <p style="margin: 5px 0 0 0; opacity: 0.9;">${[data.email, data.phone].filter(Boolean).join(" | ")}</p>
-                </div>
-                
-                ${
-                  data.summary
-                    ? `
-                <div class="section">
-                    <h2 style="color: #667eea; border-bottom: 2px solid #667eea;">Professional Summary</h2>
-                    <p>${data.summary}</p>
-                </div>
-                `
-                    : ""
-                }
-                
-                ${
-                  data.experience
-                    ? `
-                <div class="section">
-                    <h2 style="color: #667eea; border-bottom: 2px solid #667eea;">Experience</h2>
-                    <div>${data.experience.replace(/\n/g, "<br>")}</div>
-                </div>
-                `
-                    : ""
-                }
-                
-                ${
-                  data.education
-                    ? `
-                <div class="section">
-                    <h2 style="color: #667eea; border-bottom: 2px solid #667eea;">Education</h2>
-                    <div>${data.education.replace(/\n/g, "<br>")}</div>
-                </div>
-                `
-                    : ""
-                }
-                
-                ${
-                  data.skills
-                    ? `
-                <div class="section">
-                    <h2 style="color: #667eea; border-bottom: 2px solid #667eea;">Skills</h2>
-                    <p>${data.skills}</p>
-                </div>
-                `
-                    : ""
-                }
-            </div>
-        `
+      <div class="resume-template" style="font-family: 'Segoe UI', Arial, sans-serif; background: #fff; display: flex; min-height: 600px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px #0001;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; width: 240px; padding: 32px 24px; display: flex; flex-direction: column; align-items: flex-start;">
+          <h1 style="margin: 0 0 8px 0; font-size: 2rem; font-weight: 700;">${data.fullName || "Your Name"}</h1>
+          <div style="margin-bottom: 16px; opacity: 0.95;">
+            <i class="fas fa-envelope"></i> ${data.email || "your@email.com"}<br>
+            <i class="fas fa-phone"></i> ${data.phone || "000-000-0000"}
+          </div>
+          <div style="margin-top: auto; font-size: 0.95rem; opacity: 0.8;">Resume</div>
+        </div>
+        <div style="flex: 1; padding: 32px 32px 32px 40px; background: #fff;">
+          ${
+            data.summary
+              ? `<div class="section" style="margin-bottom: 24px;"><h2 style="color: #667eea; font-size: 1.2rem; border-bottom: 2px solid #667eea; display: inline-block; margin-bottom: 6px;">Professional Summary</h2><p style="margin: 0; color: #333;">${data.summary}</p></div>`
+              : ""
+          }
+          ${
+            data.experience
+              ? `<div class="section" style="margin-bottom: 24px;"><h2 style="color: #667eea; font-size: 1.2rem; border-bottom: 2px solid #667eea; display: inline-block; margin-bottom: 6px;">Experience</h2><div style="color: #444;">${data.experience.replace(/\n/g, "<br>")}</div></div>`
+              : ""
+          }
+          ${
+            data.education
+              ? `<div class="section" style="margin-bottom: 24px;"><h2 style="color: #667eea; font-size: 1.2rem; border-bottom: 2px solid #667eea; display: inline-block; margin-bottom: 6px;">Education</h2><div style="color: #444;">${data.education.replace(/\n/g, "<br>")}</div></div>`
+              : ""
+          }
+          ${
+            data.skills
+              ? `<div class="section"><h2 style="color: #667eea; font-size: 1.2rem; border-bottom: 2px solid #667eea; display: inline-block; margin-bottom: 6px;">Skills</h2><p style="color: #444;">${data.skills}</p></div>`
+              : ""
+          }
+        </div>
+      </div>
+    `
   }
 
   creativeTemplate(data) {
@@ -259,6 +243,38 @@ export class ResumeBuilder {
         `
   }
 
+  classicTemplate(data) {
+    // Classic: serif font, centered name, simple lines, elegant spacing
+    return `
+      <div class="resume-template" style="font-family: 'Times New Roman', Times, serif; background: #fff; max-width: 800px; margin: 0 auto; border: 1px solid #bbb; padding: 40px 48px; border-radius: 8px;">
+        <div style="border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 28px; text-align: center;">
+          <h1 style="margin: 0; font-size: 2.2rem; color: #222; letter-spacing: 1px;">${data.fullName || "Your Name"}</h1>
+          <p style="margin: 8px 0 0 0; color: #444; font-size: 1.1rem;">${[data.email, data.phone].filter(Boolean).join(" | ")}</p>
+        </div>
+        ${
+          data.summary
+            ? `<div class="section" style="margin-bottom: 22px;"><h2 style="color: #222; font-size: 1.1rem; border-bottom: 1px solid #bbb; display: inline-block; margin-bottom: 6px;">Professional Summary</h2><p style="margin: 0; color: #222;">${data.summary}</p></div>`
+            : ""
+        }
+        ${
+          data.experience
+            ? `<div class="section" style="margin-bottom: 22px;"><h2 style="color: #222; font-size: 1.1rem; border-bottom: 1px solid #bbb; display: inline-block; margin-bottom: 6px;">Experience</h2><div style="color: #222;">${data.experience.replace(/\n/g, "<br>")}</div></div>`
+            : ""
+        }
+        ${
+          data.education
+            ? `<div class="section" style="margin-bottom: 22px;"><h2 style="color: #222; font-size: 1.1rem; border-bottom: 1px solid #bbb; display: inline-block; margin-bottom: 6px;">Education</h2><div style="color: #222;">${data.education.replace(/\n/g, "<br>")}</div></div>`
+            : ""
+        }
+        ${
+          data.skills
+            ? `<div class="section"><h2 style="color: #222; font-size: 1.1rem; border-bottom: 1px solid #bbb; display: inline-block; margin-bottom: 6px;">Skills</h2><p style="color: #222;">${data.skills}</p></div>`
+            : ""
+        }
+      </div>
+    `
+  }
+
   async getSuggestions() {
     const data = this.collectFormData()
 
@@ -292,7 +308,7 @@ export class ResumeBuilder {
 
     try {
       const pdfUtils = new PDFUtils();
-      const pdf = pdfUtils.generateResumePDF(data)
+      const pdf = pdfUtils.generateResumePDF(data, this.currentTemplate || 'professional')
       pdfUtils.downloadPDF(pdf, `${data.fullName.replace(/\s+/g, "_")}_Resume.pdf`)
     } catch (error) {
       console.error("Error generating PDF:", error)
@@ -310,3 +326,14 @@ export class ResumeBuilder {
 
 // Global instance
 const resumeBuilder = new ResumeBuilder()
+
+// Add event listener for template selection
+window.addEventListener('DOMContentLoaded', () => {
+  const templateSelect = document.getElementById('resumeTemplateSelect');
+  if (templateSelect) {
+    templateSelect.value = resumeBuilder.currentTemplate;
+    templateSelect.addEventListener('change', (e) => {
+      resumeBuilder.setTemplate(e.target.value);
+    });
+  }
+});

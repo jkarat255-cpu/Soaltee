@@ -40,6 +40,8 @@
       <input class="form-input" type="email" id="applicantEmail" required>
       <label class="form-label" for="applicantPhone">Phone Number</label>
       <input class="form-input" type="tel" id="applicantPhone" required>
+      <label class="form-label" for="resumeFile">Upload Resume (PDF)</label>
+      <input class="form-input" type="file" id="resumeFile" accept="application/pdf" required>
       <button class="form-btn" type="submit">Submit Application</button>
     </form>
     <div class="msg" id="formMsg"></div>
@@ -106,6 +108,29 @@
       }
     }
     loadJobDetails();
+
+    let resumeData = null;
+    // Handle resume upload
+    document.getElementById('resumeFile').onchange = async function(e) {
+      const file = e.target.files[0];
+      resumeData = file;
+      };
+
+    // Saving Resume to Supabase with unique filename and better error handling
+    const saveResumeToSupabase = async (file) => {
+      if (!file) throw new Error('No file selected');
+      const timestamp = Date.now();
+      const uniqueName = `${timestamp}_${file.name}`;
+      // Ensure the 'resumes' bucket exists in your Supabase project
+      const { data, error } = await supabase.storage.from('resumes').upload(uniqueName, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+      if (error) throw error;
+      return data;
+    };
+
+
     // Handle form submit
     document.getElementById('applicationForm').onsubmit = async function(e) {
       e.preventDefault();
@@ -113,12 +138,13 @@
       const email = document.getElementById('applicantEmail').value;
       const phone = document.getElementById('applicantPhone').value;
       const msgDiv = document.getElementById('formMsg');
+      const resumeUrl = await saveResumeToSupabase(resumeData);
       msgDiv.textContent = 'Submitting...';
-      console.log('[DEBUG] Submitting application:', { name, email, phone });
+      console.log('[DEBUG] Submitting application:', { name, email, phone, resumeUrl });
       try {
         if (!supabase) throw new Error('Supabase client not initialized');
         const { data, error } = await supabase.from('applications').insert([
-          { name, email, description: phone }
+          { name, email, description: phone, resume_url: resumeUrl.path }
         ]);
         if (error) throw error;
         msgDiv.style.color = '#22c55e';
