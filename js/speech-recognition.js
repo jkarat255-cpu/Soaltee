@@ -6,6 +6,7 @@ export class SpeechManager {
     this.isRecording = false
     this.currentTranscript = ""
     this.finalTranscript = ""
+    this.fullTranscript = ""
     this.onTranscriptUpdate = null
     this.onRecordingComplete = null
   }
@@ -26,6 +27,7 @@ export class SpeechManager {
     this.recognition.onstart = () => {
       console.log("Speech recognition started")
       this.isRecording = true
+      this.fullTranscript = "" // Reset at the start of each recording
     }
 
     this.recognition.onresult = (event) => {
@@ -43,9 +45,13 @@ export class SpeechManager {
 
       this.currentTranscript = finalTranscript + interimTranscript
       this.finalTranscript = finalTranscript
+      // Accumulate all final results into fullTranscript
+      if (finalTranscript) {
+        this.fullTranscript += finalTranscript + ' ';
+      }
 
       if (this.onTranscriptUpdate) {
-        this.onTranscriptUpdate(this.currentTranscript, finalTranscript)
+        this.onTranscriptUpdate(this.fullTranscript + interimTranscript, finalTranscript)
       }
     }
 
@@ -57,7 +63,8 @@ export class SpeechManager {
       console.log("Speech recognition ended")
       this.isRecording = false
       if (this.onRecordingComplete) {
-        this.onRecordingComplete(this.finalTranscript)
+        // Pass the accumulated full transcript
+        this.onRecordingComplete(this.fullTranscript.trim())
       }
     }
 

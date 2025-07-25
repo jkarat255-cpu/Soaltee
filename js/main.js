@@ -27,6 +27,7 @@ class JobPrepApp {
     this.pdfUtils = new PDFUtils();
     this.codeEditor = new CodeEditor();
     this.jobManager = new JobManager();
+    this.fullTranscript = '';
     this.init()
   }
 
@@ -343,22 +344,32 @@ class JobPrepApp {
   }
 
   updateTranscript(transcript, final) {
-    const transcriptionElement = document.getElementById("transcription")
-    if (transcriptionElement) {
-      transcriptionElement.textContent = transcript || "Your speech will appear here..."
+    // Accumulate transcript during recording
+    if (!this.fullTranscript) this.fullTranscript = '';
+    if (transcript) {
+      this.fullTranscript = transcript;
+    }
+    // Update the UI as before
+    const transcriptArea = document.getElementById('transcription');
+    if (transcriptArea) {
+      transcriptArea.textContent = transcript || 'Your speech will appear here...';
     }
   }
 
   async handleRecordingComplete(finalTranscript) {
+    // Use the accumulated full transcript for evaluation
+    const answerText = this.fullTranscript || finalTranscript;
     // Store the answer (even if empty)
     const currentQuestion = this.interviewState.questions[this.interviewState.currentQuestionIndex]
     const confidenceScore = this.confidenceAnalyzer.getAverageConfidence()
     this.interviewState.answers.push({
       question: currentQuestion,
-      response: finalTranscript,
+      response: answerText,
       confidenceScore: confidenceScore,
     })
     this.interviewState.confidenceScores.push(confidenceScore)
+    // Reset fullTranscript for next question
+    this.fullTranscript = '';
 
     // Show immediate feedback in practice mode
     if (!this.interviewState.isMockInterview) {
@@ -369,7 +380,7 @@ class JobPrepApp {
       }
       try {
         const jobContext = this.interviewState.jobTitle
-        const feedback = await this.geminiAPI.evaluateAnswer(currentQuestion, finalTranscript, jobContext)
+        const feedback = await this.geminiAPI.evaluateAnswer(currentQuestion, answerText, jobContext)
         if (feedbackArea) {
           // Parse score and feedback by criteria
           let scoreMatch = feedback.match(/Score:\s*(\d{1,2})\/10/i)
@@ -535,14 +546,21 @@ class JobPrepApp {
 
   displayInterviewResults(feedback, opts = {}) {
     let parsed = null;
+    // Strip triple backticks and leading 'json' if present
+    let cleaned = feedback.trim();
+    if (cleaned.startsWith('```json')) {
+      cleaned = cleaned.replace(/^```json/, '').replace(/```$/, '').trim();
+    } else if (cleaned.startsWith('```')) {
+      cleaned = cleaned.replace(/^```/, '').replace(/```$/, '').trim();
+    }
     try {
-      parsed = JSON.parse(feedback);
+      parsed = JSON.parse(cleaned);
     } catch (e) {
       document.getElementById("confidenceScoreCircle").innerHTML = '';
       document.getElementById("answerRelevancy").textContent = "-";
       document.getElementById("communicationScore").textContent = "-";
       document.getElementById("technicalScore").textContent = "-";
-      document.getElementById("detailedFeedback").innerHTML = `<div class="prose max-w-none">${feedback.replace(/\n/g, "<br>")}</div>`;
+      document.getElementById("detailedFeedback").innerHTML = `<div class="prose max-w-none">${this.formatFeedbackAsBullets(feedback)}</div>`;
       document.getElementById("hireabilityBox").style.display = "none";
       document.getElementById("dsaSummary").style.display = "none";
       return;
@@ -560,7 +578,8 @@ class JobPrepApp {
       techBox.style.display = "none";
       document.getElementById("technicalScore").textContent = "N/A";
     }
-    document.getElementById("detailedFeedback").innerHTML = `<div class="prose max-w-none">${parsed.detailedFeedback}</div>`;
+    // Format detailed feedback as bullet points if possible
+    document.getElementById("detailedFeedback").innerHTML = `<div class="prose max-w-none">${this.formatFeedbackAsBullets(parsed.detailedFeedback)}</div>`;
     // DSA Summary (for technical)
     const dsaSummary = document.getElementById("dsaSummary");
     let dsaScore = null;
@@ -795,6 +814,26 @@ class JobPrepApp {
       if (debugDiv) debugDiv.textContent = `Exception: ${e && e.stack ? e.stack : e}`;
       console.error('Exception in loadApplicationsForEmployer:', e);
     }
+  }
+
+  // Helper to format feedback as bullet points
+  formatFeedbackAsBullets(feedback) {
+    if (!feedback) return '';
+    // If markdown, convert lines starting with * or - to <li>
+    if (/\n[*-] /.test(feedback) || /\n\d+\. /.test(feedback)) {
+      // Convert numbered or bullet markdown to <ul><li>
+      let html = feedback
+        .replace(/\n\n/g, '\n')
+        .replace(/\n[*-] /g, '\n• ')
+        .replace(/\n\d+\. /g, '\n• ')
+        .split(/\n|<br\s*\/?\s*>/)
+        .map(line => line.trim().startsWith('•') ? `<li>${line.replace(/^•\s*/, '')}</li>` : line)
+        .join('');
+      html = `<ul>${html}</ul>`;
+      return html;
+    }
+    // Otherwise, just replace newlines with <br>
+    return feedback.replace(/\n/g, '<br>');
   }
 }
 

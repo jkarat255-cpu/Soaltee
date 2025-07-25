@@ -19,11 +19,8 @@ function displayQuestion(idx) {
   const qBox = document.getElementById('aiQuestion');
   const question = questions[idx] || 'Interview complete!';
   if (qBox) qBox.textContent = question;
-  if (window.aiAvatarSpeak) window.aiAvatarSpeak(question);
-}
-
-function playTTS(text) {
-  speechManager.speak(text, { rate: 0.95, pitch: 1, volume: 0.9 });
+  // Use browser TTS (female voice) for all questions
+  speechManager.speak(question, { rate: 0.95, pitch: 1, volume: 0.9 });
 }
 
 function showFinalFeedback() {
@@ -139,8 +136,7 @@ function nextQuestion() {
   if (currentQuestion < questions.length - 1) {
     currentQuestion++;
     displayQuestion(currentQuestion);
-    playTTS(questions[currentQuestion]);
-    confidenceAnalyzer.reset();
+    // playTTS(questions[currentQuestion]); // REMOVE, handled by displayQuestion
   } else {
     stopWebcamAndTF();
     showFinalFeedback();
@@ -150,7 +146,6 @@ function nextQuestion() {
 document.addEventListener('DOMContentLoaded', async () => {
   await fetchQuestions();
   displayQuestion(currentQuestion);
-  playTTS(questions[currentQuestion]);
 
   // Webcam and TensorFlow setup
   const video = document.getElementById('userWebcam');
@@ -158,7 +153,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // TTS button
   document.getElementById('playTTSBtn').onclick = () => {
-    playTTS(questions[currentQuestion]);
+    speechManager.speak(questions[currentQuestion], { rate: 0.95, pitch: 1, volume: 0.9 });
   };
 
   // Answer recording logic
@@ -208,4 +203,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   speechManager.setTranscriptCallback((transcript, final) => {
     transcriptBox.textContent = transcript || 'Transcript will appear here...';
   });
+
+  // Add a background to the avatar area for immersion
+  const aiHalf = document.getElementById('ai-half');
+  if (aiHalf) {
+    aiHalf.style.background = 'linear-gradient(135deg, #23201a 60%, #3b2f23 100%)';
+    aiHalf.style.boxShadow = '0 4px 24px #0006';
+    aiHalf.style.borderRadius = '1.2rem';
+  }
 }); 
