@@ -247,7 +247,7 @@ export class JobManager {
                         </p>
                     </div>
                     <div class="text-right">
-                        <span class="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full mb-2">
+                        <span class="inline-block bg-blue-100 text-black text-sm px-3 py-1 rounded-full mb-2">
                             ${job.type}
                         </span>
                         <p class="text-green-600 font-semibold">${job.salary}</p>
@@ -258,16 +258,12 @@ export class JobManager {
                 
                 <div class="flex justify-between items-center">
                     <p class="text-sm text-gray-500">
-                        Posted: ${new Date(job.postedDate).toLocaleDateString()}
-                        ${isEmployer ? `| ${applicationCount} application${applicationCount !== 1 ? "s" : ""}` : ""}
+                        ${isEmployer ? `Posted: ${new Date(job.postedDate).toLocaleDateString()} | ${applicationCount} application${applicationCount !== 1 ? "s" : ""}` : ""}
                     </p>
                     <div class="space-x-2">
                         ${
                           isEmployer
                             ? `
-                            <button onclick="viewJobApplications('${job.id}')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
-                                View Applications (${applicationCount})
-                            </button>
                             <button onclick="editJob('${job.id}')" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">
                                 Edit
                             </button>
