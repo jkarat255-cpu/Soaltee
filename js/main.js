@@ -5,6 +5,7 @@ import { SpeechManager } from './speech-recognition.js';
 import { PDFUtils } from './pdf-utils.js';
 import { CodeEditor } from './code-editor.js';
 import { JobManager } from './job-management.js';
+import { supabase } from './supabase-auth.js';
 
 // Main application logic
 class JobPrepApp {
@@ -1481,6 +1482,7 @@ window.renderEmployerApplicationCard = function(app) {
   let actionBtns = '';
   if (app.status && app.status.toLowerCase() === 'pending') {
     actionBtns = `
+      <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-2" onclick="window.viewApplicantResume('${app.resume_url}')">View Resume</button>
       <button class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 mr-2" onclick="window.ignoreApplication('${app.id}')">Ignore</button>
       <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" onclick="window.callForInterview('${app.id}', '${app.email}', '${app.name}')">Call for Interview</button>
     `;
@@ -1565,3 +1567,18 @@ function openChatModal(app) {
   });
 }
 window.openChatModal = openChatModal;
+
+window.viewApplicantResume = async function(resumeUrl) {
+  if (!resumeUrl) {
+    alert('No resume URL provided.');
+    return;
+  }
+  // Generate a signed URL for the file in the 'pdfs' bucket
+  const { data, error } = await supabase.storage.from('pdfs').createSignedUrl(resumeUrl, 60 * 10); 
+  if (error || !data || !data.signedUrl) {
+    alert('Could not retrieve resume PDF.');
+    console.error('[DEBUG] Could not retrieve signed URL:', { error, data });
+    return;
+  }
+  window.open(data.signedUrl, '_blank');
+}
