@@ -21,6 +21,8 @@ function displayQuestion(idx) {
   if (qBox) qBox.textContent = question;
   // Use browser TTS (female voice) for all questions
   speechManager.speak(question, { rate: 0.95, pitch: 1, volume: 0.9 });
+  // Also trigger avatar lipsync
+  if (window.aiAvatarSpeak) window.aiAvatarSpeak(question);
 }
 
 function showFinalFeedback() {
