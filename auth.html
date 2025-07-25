@@ -8,65 +8,120 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-main: #23201a;
-            --bg-card: #2d261c;
-            --bg-accent: #3b2f23;
-            --text-main: #f5ede3;
-            --text-muted: #bfae9c;
-            --accent-amber: #ffb300;
-            --accent-orange: #ff7043;
-            --accent-green: #7cb342;
-            --accent-blue: #64b5f6;
-            --border-main: #4b3a2f;
-            --shadow-main: 0 2px 16px #0006;
-            --font-main: 'Inter', Arial, sans-serif;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         body {
-            background: var(--bg-main) !important;
-            color: var(--text-main) !important;
-            font-family: var(--font-main) !important;
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #fff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        header {
+            background: #000;
+            color: #fff;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover {
+            color: #ccc;
+        }
+        .btn {
+            background: #fff;
+            color: #000;
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #fff;
+        }
+        .btn-secondary:hover {
+            background: #fff;
+            color: #000;
         }
         .login-card {
-            background: #2d261c;
-            color: var(--text-main);
+            background: #fff;
+            color: #000;
             border-radius: 1.5rem;
-            box-shadow: var(--shadow-main);
+            box-shadow: 0 2px 16px #0002;
             padding: 2.5rem;
             max-width: 420px;
             margin: 0 auto;
+            margin-top: 120px;
         }
         .login-card h2 {
-            color: var(--accent-amber);
+            color: #000;
         }
         .login-card input, .login-card select {
-            background: var(--bg-accent);
-            color: var(--text-main);
-            border: 1px solid var(--border-main);
-            font-family: var(--font-main);
+            background: #f8f8f8;
+            color: #000;
+            border: 1px solid #ccc;
+            font-family: 'Arial', sans-serif;
         }
         .login-card button {
-            background: var(--accent-blue);
-            color: var(--bg-card);
+            background: #000;
+            color: #fff;
             border-radius: 0.7rem;
-            font-family: var(--font-main);
-            box-shadow: 0 1px 4px #0003;
+            font-family: 'Arial', sans-serif;
+            box-shadow: 0 1px 4px #0001;
             transition: background 0.2s, color 0.2s, box-shadow 0.2s, outline 0.2s;
             outline: none;
             border-bottom: none !important;
         }
         .login-card button:hover, .login-card button:focus {
-            background: #ffd166;
-            color: #23201a;
-            box-shadow: 0 2px 8px #0005;
-            outline: 2px solid var(--accent-amber);
+            background: #fff;
+            color: #000;
+            box-shadow: 0 2px 8px #0002;
+            outline: 2px solid #000;
         }
         .tab-active, .active {
-            background: #2563eb !important;
+            background: #000 !important;
             color: #fff !important;
-            border-bottom: 2.5px solid #2563eb !important;
+            border-bottom: 2.5px solid #000 !important;
             font-weight: 700;
-            text-shadow: 0 1px 2px #0002;
+            text-shadow: 0 1px 2px #0001;
         }
         .tab-inactive {
             color: #000 !important;
@@ -75,18 +130,18 @@
             border-bottom: none !important;
         }
         .tab-active:focus, .tab-inactive:focus, .active:focus {
-            outline: 2px solid var(--accent-blue) !important;
-            box-shadow: 0 0 0 2px var(--accent-blue) !important;
+            outline: 2px solid #000 !important;
+            box-shadow: 0 0 0 2px #000 !important;
         }
         .text-blue-700, .text-blue-600, .text-gray-500, .text-gray-400, .text-blue-500 {
-            color: var(--accent-blue) !important;
+            color: #000 !important;
             text-shadow: 0 1px 2px #0001;
         }
         .bg-white, .bg-blue-600, .bg-green-600, .bg-blue-700, .bg-green-700, .hover\:bg-blue-700, .hover\:bg-green-700 {
             background: none !important;
         }
         .border-gray-200 {
-            border-color: var(--border-main) !important;
+            border-color: #ccc !important;
         }
         .animate-fade-in {
             animation: fadeIn 0.5s ease-in;
@@ -96,13 +151,12 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .login-card input:focus {
-            outline: 2px solid var(--accent-amber);
-            background: #3b2f23;
-            box-shadow: 0 0 0 2px var(--accent-amber);
+            outline: 2px solid #000;
+            background: #eee;
+            box-shadow: 0 0 0 2px #0001;
         }
-        /* Style the main Sign In and Sign Up submit buttons for visibility */
         button[type="submit"], .submit-btn {
-            background: #2563eb !important; /* Tailwind blue-600 */
+            background: #000 !important;
             color: #fff !important;
             font-weight: 600;
             border-radius: 0.5rem;
@@ -110,10 +164,9 @@
             transition: background 0.2s;
         }
         button[type="submit"]:hover, .submit-btn:hover {
-            background: #1d4ed8 !important; /* Tailwind blue-700 */
+            background: #fff !important;
+            color: #000 !important;
         }
-        /* If you want a different color for Sign Up, add a class to that button and style it here */
-        /* Tab buttons: default black, white text; selected white, black text */
         .tab-btn {
             background: #000 !important;
             color: #fff !important;
@@ -126,12 +179,28 @@
             background: #fff !important;
             color: #000 !important;
         }
+        .active {
+            background: #000 !important;
+            color: #fff !important;
+            border-bottom: 2px solid #000 !important;
+        }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center" style="background:var(--bg-main);color:var(--text-main);font-family:'Inter',Arial,sans-serif;">
-    <button onclick="window.location.href='index.html'" class="absolute top-6 left-6 login-card px-4 py-2 flex items-center" style="background:var(--bg-accent);color:var(--accent-blue);border-radius:0.7rem;box-shadow:0 1px 4px #0003;">
-        <i class="fas fa-arrow-left mr-2"></i>Back
-    </button>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">JobInterview Pro</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="#about">About Us</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#jobs">Jobs</a></li>
+                <li><a href="#testimonials">Testimonials</a></li>
+            </ul>
+            <a href="auth.html" class="btn">Get Started</a>
+        </nav>
+    </header>
+    <div style="height: 90px;"></div>
     <div class="login-card relative animate-fade-in">
         <div class="flex flex-col items-center mb-6">
             <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="JobPrep Pro Logo" class="w-20 h-20 mb-2 drop-shadow-lg">
@@ -139,8 +208,8 @@
             <p class="text-gray-500 text-sm">Your gateway to career success</p>
         </div>
         <div class="flex mb-6 border-b">
-            <button id="seekerTab" class="flex-1 py-2 text-lg font-semibold text-blue-600 border-b-2 border-blue-600 focus:outline-none tab-active">Job Seeker</button>
-            <button id="employerTab" class="flex-1 py-2 text-lg font-semibold text-gray-500 border-b-2 border-transparent focus:outline-none tab-inactive">Employer</button>
+            <button id="seekerTab" class="flex-1 py-2 text-lg font-semibold tab-btn selected">Job Seeker</button>
+            <button id="employerTab" class="flex-1 py-2 text-lg font-semibold tab-btn">Employer</button>
         </div>
         <div id="seekerForms">
             <div class="flex mb-4">
@@ -191,6 +260,21 @@
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Seeker/Employer main tabs
+            const seekerTab = document.getElementById('seekerTab');
+            const employerTab = document.getElementById('employerTab');
+            if (seekerTab && employerTab) {
+                seekerTab.classList.add('tab-btn', 'selected');
+                employerTab.classList.add('tab-btn');
+                seekerTab.addEventListener('click', function() {
+                    seekerTab.classList.add('selected');
+                    employerTab.classList.remove('selected');
+                });
+                employerTab.addEventListener('click', function() {
+                    employerTab.classList.add('selected');
+                    seekerTab.classList.remove('selected');
+                });
+            }
             // Seeker tabs
             const seekerSignInTab = document.getElementById('seekerSignInTab');
             const seekerSignUpTab = document.getElementById('seekerSignUpTab');

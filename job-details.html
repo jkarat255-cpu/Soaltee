@@ -122,7 +122,7 @@
       const timestamp = Date.now();
       const uniqueName = `${timestamp}_${file.name}`;
       // Ensure the 'resumes' bucket exists in your Supabase project
-      const { data, error } = await supabase.storage.from('resumes').upload(uniqueName, file, {
+      const { data, error } = await supabase.storage.from('pdfs').upload(uniqueName, file, {
         cacheControl: '3600',
         upsert: false
       });
