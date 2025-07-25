@@ -1483,7 +1483,6 @@ window.renderEmployerApplicationCard = function(app) {
   if (app.status && app.status.toLowerCase() === 'pending') {
     actionBtns = `
       <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-2" onclick="window.viewApplicantResume('${app.resume_url}')">View Resume</button>
-      <button class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 mr-2" onclick="window.ignoreApplication('${app.id}')">Ignore</button>
       <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" onclick="window.callForInterview('${app.id}', '${app.email}', '${app.name}')">Call for Interview</button>
     `;
   } else if (app.status && app.status.toLowerCase() === 'ignored') {
