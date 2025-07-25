@@ -8,6 +8,7 @@ const head = new TalkingHead(nodeAvatar, {
   ttsVoice: "en-US-004", // en-US-004 is a female voice in HeadTTS
   lipsyncLang: "en"
 });
+window.head = head;
 
 (async () => {
   await head.showAvatar({
@@ -21,4 +22,26 @@ const head = new TalkingHead(nodeAvatar, {
 
 window.aiAvatarSpeak = function(text) {
   head.speakText(text);
+  // FAKE LIPSYNC: animate multiple morphs for 2 seconds, fully open/close (max open)
+  let t = 0;
+  const duration = 8000; // ms
+  const interval = 100; // ms
+  function setMouthMorphs(val) {
+    head.setValue && head.setValue('mouthOpen', val);
+    head.setValue && head.setValue('jawOpen', val);
+    head.setValue && head.setValue('viseme_aa', val);
+    head.setValue && head.setValue('mouthFunnel', val);
+  }
+  function animateMouth() {
+    if (t >= duration) {
+      setMouthMorphs(0);
+      return;
+    }
+    // Alternate mouth fully open/closed (max open = 2)
+    const value = (t / interval) % 2 === 0 ? 2 : 0;
+    setMouthMorphs(value);
+    t += interval;
+    setTimeout(animateMouth, interval);
+  }
+  animateMouth();
 }; 
