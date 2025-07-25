@@ -77,11 +77,17 @@ export class SpeechManager {
       return false
     }
 
+    if (this.isRecording) {
+      // Already recording, don't start again
+      return false
+    }
+
     this.currentTranscript = ""
     this.finalTranscript = ""
 
     try {
       this.recognition.start()
+      this.isRecording = true // Set flag immediately to avoid race conditions
       return true
     } catch (error) {
       console.error("Error starting speech recognition:", error)
