@@ -11,7 +11,7 @@ const head = new TalkingHead(nodeAvatar, {
 
 (async () => {
   await head.showAvatar({
-    url: 'https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb?morphTargets=ARKit,Oculus+Visemes,mouthOpen,mouthSmile,eyesClosed,eyesLookUp,eyesLookDown&textureSizeLimit=1024&textureFormat=png',
+    url: 'https://models.readyplayer.me/6882e97fb7044236df4d8e29.glb?morphTargets=ARKit,Oculus+Visemes,mouthOpen,mouthSmile,eyesClosed,eyesLookUp,eyesLookDown&textureSizeLimit=1024&textureFormat=png',
     body: 'F',
     avatarMood: 'neutral'
   });
